@@ -142,6 +142,10 @@
     var assets_name = "";
     abi = {};
     contract_address = "0x835F6dF988B6f51c9477D49e96aDBbc644ba97a2"
+    if(typeof ethereum == "undefined")
+    {
+        mui.confirm("请使用metamask或者qkpay打开本网站");
+    }
     ethereum.enable()
     let customHttpProvider = new ethers.providers.Web3Provider(ethereum);
     let signer = customHttpProvider.getSigner();
