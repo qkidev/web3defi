@@ -1,7 +1,9 @@
 <template>
   <div>
     <div class="header flex_h_center_center">
-      <div class="bigTxt">WQKI</div>
+      <div class="bg-img back_bg" @click="goBack"></div>
+      <div class="bigTxt flex1">WQKI</div>
+      <div class="back_bg_placeholder"></div>
     </div>
     
     <div class="padd_40">
@@ -52,6 +54,9 @@ export default {
     // this.submit();
   },
   methods: {
+    goBack() {
+      this.$router.go(-1);
+    },
     async getDetail() {
       // if (this.provider.network.chainId != 20181205) {
       //   Toast('你当时没有使用QKI主网，目前本应用只支持QKI主网')

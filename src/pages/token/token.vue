@@ -183,7 +183,7 @@ export default {
       textarea.setSelectionRange(0, this.address.length); //核心
       document.execCommand("copy"); // 执行浏览器复制命令
       textarea.remove();
-      Toast('成功复制')
+      Toast('通证发布成功，通证合约地址复制成功')
       // return result;
     }
   }

@@ -102,9 +102,16 @@ export default {
           .then(
             function(data) {
               var hash = data.hash;
-              Toast("提交成功，等待区块打包，自动执行智能合约");
+              Toast("提交成功，等待区块打包，请等待片刻");
               this.provider.waitForTransaction(hash).then(receipt => {
-                Toast("区块打包成功", receipt);
+                if(receipt.status == 1)
+                {
+                  Toast("区块打包成功，兑换成功", receipt);
+                }
+                else
+                {
+                  Toast("区块打包成功，兑换失败，请确认数量是否正确", receipt);
+                }
               });
             },
             function(data) {
@@ -131,6 +138,7 @@ export default {
         let sendPromise = this.signer.sendTransaction(tx);
         sendPromise.then(
           tx => {
+            Toast("提交成功，等待区块打包，请等待片刻");
             var hash = tx.hash;
             this.provider.waitForTransaction(hash).then(receipt => {
               if (receipt.status == 1) {
