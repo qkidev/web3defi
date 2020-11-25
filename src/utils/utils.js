@@ -16,6 +16,13 @@ const initEth = {
       let customHttpProvider = new ethers.providers.Web3Provider(
         window.ethereum
       );
+
+      ethereum.on('chainChanged', (chainId) => {
+        // Handle the new chain.
+        // Correctly handling chain changes can be complicated.
+        // We recommend reloading the page unless you have a very good reason not to.
+        window.location.reload();
+      });
       
       this.provider = customHttpProvider;
       this.signer = customHttpProvider.getSigner();
