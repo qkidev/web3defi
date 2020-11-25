@@ -202,3 +202,9 @@ $text_blue_color: #79A0FF;
   padding-left: 40px;
   padding-right: 40px;
 }
+
+::placeholder{
+  color: $text_grey1_color;
+  font-size: $smallestFontSize;
+  font-weight: 500;
+}

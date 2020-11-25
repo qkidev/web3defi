@@ -9,6 +9,7 @@ module.exports = {
       rootValue: 32, // 设计稿是750设置32,设计稿是375 rootValue设置为16，需要和rem.js配合使用
       selectorBlackList: [ // 不需要px转为rem的类名单。
         // '.van-swipe__indicators'
+        '.van-toast'
       ],
       propList: ['*'],
     },

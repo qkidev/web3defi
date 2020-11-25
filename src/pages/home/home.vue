@@ -23,7 +23,7 @@
         </div>
       </div>
       <div class="flex_h history">
-        <div class="history_item" v-for="(item, index) in history" :key="index" @click="goto('dappHome')">
+        <div class="history_item" v-for="(item, index) in history" :key="index" @click="goHref(item.url)">
           <img :src="item.icon" alt="">
           <div class="smallerTxt">{{item.title}}</div>
         </div>
@@ -32,7 +32,7 @@
         <div class="bigTxt">推荐</div>
       </div>
       <div class="recomment_list">
-        <div class="recomment_list_item flex_h" v-for="(item, index) in recomments" :key="index">
+        <div class="recomment_list_item flex_h" v-for="(item, index) in recomments" :key="index" @click="goto(item.routeName)">
           <img :src="item.icon" alt="">
           <div class="flex1 flex_v ellipsis">
             <div class="smallerGrey2Txt ellipsis alignLeft">{{item.title}}</div>
@@ -66,21 +66,6 @@ export default {
           icon: require("../../assets/temp/banner1.png"),
           title: "WQKI",
           desc: "全称Wrapped QKI，Wrapped QKI是一个智能合约"
-        },
-        {
-          icon: require("../../assets/home/logo.png"),
-          title: "一键发布通证",
-          desc: "输入通证总量、通证名称、通证精度，通证缩写即可发布"
-        },
-        {
-          icon: require("../../assets/home/logo.png"),
-          title: "Web3defi应用中心2",
-          desc: "加密经济、用户体验、Web3、DeFi 这些行业热门话题."
-        },
-        {
-          icon: require("../../assets/home/logo.png"),
-          title: "Web3defi应用中心3",
-          desc: "加密经济、用户体验、Web3、DeFi 这些行业热门话题."
         }
       ];
     },
@@ -89,14 +74,17 @@ export default {
         {
           icon: require("../../assets/temp/history.png"),
           title: "QKSWAP",
+          url: 'https://app.qkswap.io/'
         },
         {
           icon: require("../../assets/temp/history.png"),
-          title: "Qscout"
+          title: "Qscout",
+          url: 'https://quarkscout.com/'
         },
         {
           icon: require("../../assets/temp/history.png"),
-          title: "Uniswap"
+          title: "Uniswap",
+          url: 'https://app.uniswap.org/#/swap'
         }
       ];
     },
@@ -105,37 +93,22 @@ export default {
         {
           icon: require("../../assets/temp/1.png"),
           title: "WQKI",
-          desc: "全称Wrapped QKI，Wrapped QKI是一个智能合约"
+          desc: "全称Wrapped QKI，Wrapped QKI是一个智能合约",
+          routeName: 'dappHome'
         },
         {
           icon: require("../../assets/temp/2.png"),
           title: "一键发布通证",
-          desc: "输入通证总量、通证名称、通证精度，通证缩写即可发布"
-        },
-        {
-          icon: require("../../assets/temp/1.png"),
-          title: "Web3defi应用中心2",
-          desc: "加密经济、用户体验、Web3、DeFi 这些行业热门话题."
-        },
-        {
-          icon: require("../../assets/temp/2.png"),
-          title: "Web3defi应用中心3",
-          desc: "加密经济、用户体验、Web3、DeFi 这些行业热门话题."
-        },
-        {
-          icon: require("../../assets/temp/1.png"),
-          title: "Web3defi应用中心2",
-          desc: "加密经济、用户体验、Web3、DeFi 这些行业热门话题."
-        },
-        {
-          icon: require("../../assets/temp/2.png"),
-          title: "Web3defi应用中心3",
-          desc: "加密经济、用户体验、Web3、DeFi 这些行业热门话题."
+          desc: "输入通证总量、通证名称、通证精度，通证缩写即可发布",
+          routeName: 'token'
         }
       ];
     },
     goto(routeName){
       this.$router.push(routeName);
+    },
+    goHref(url){
+      window.location.href = url;
     }
   }
 };

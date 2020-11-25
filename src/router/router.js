@@ -5,6 +5,7 @@ import Home from '@/pages/home/home';
 import DappHome from '@/pages/dappHome/dappHome';
 import Exchange from '@/pages/exchange/exchange';
 import Token from '@/pages/token/token';
+import Desc from '@/pages/desc/desc';
 Vue.use(Router);
 
 export default new Router({
@@ -31,6 +32,11 @@ export default new Router({
     path: '/token',
     name: 'token',
     component: Token
+  },
+  {
+    path: '/desc',
+    name: 'desc',
+    component: Desc
   },
   ]
 })
