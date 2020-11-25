@@ -26,48 +26,88 @@
 </template>
 
 <script>
+
+import {initEth} from '@/utils/utils.js'
+import { ethers } from 'ethers';
+import {abi} from './config';
+import { Toast } from "vant";
 export default {
-  name: "home",
+  name: "dappHome",
   data() {
     return {
       balance: '',
       parisBalance: '',
-      parisCoinName: '',
-      coinName: '',
-      grids: []
+      parisCoinName: 'WQKI',
+      coinName: 'QKI',
+      grids: [],
+      contractAddress: '0x835F6dF988B6f51c9477D49e96aDBbc644ba97a2'
     };
   },
+   mixins: [initEth],
   created() {
+    // this.getDetail();
+  },
+  mounted() {
     this.getDetail();
+    // this.submit();
   },
   methods: {
-    getDetail() {
-      this.balance = '128374.2048928';
-      this.parisBalance = '128374.2048928';
-      this.coinName = 'QKI'
-      this.parisCoinName = 'WQKI';
+    async getDetail() {
+      // if (this.provider.network.chainId != 20181205) {
+      //   Toast('你当时没有使用QKI主网，目前本应用只支持QKI主网')
+      //   return;
+      // }
+      var contract = new ethers.Contract(this.contractAddress, abi, this.signer);
+
+      this.signer.getAddress().then((address) => {
+        // 获取主网qki的余额
+        this.provider.getBalance(address).then((balance) => {
+          let etherString = ethers.utils.formatEther(balance);
+          this.balance = parseFloat(etherString);
+        });
+        // 获取合约
+        contract.balanceOf(address).then((balance) => {
+          let etherString = ethers.utils.formatEther(balance);
+          this.parisBalance = parseFloat(etherString);
+        }, (data) => {
+            if (data.code == "INSUFFICIENT_FUNDS") {
+              Toast("矿工费不足");
+            } else if (data.code == 4001) {
+              Toast("用户取消");
+            } else {
+              Toast("错误代码:" + data.code);
+            }
+          })        
+      });
+
       this.grids = [{
           icon: require("../../assets/dappHome/exchange.png"),
           title: "QKI转WQKI",
           routeName: 'exchange',
           coinName: 'QKI',
-          parisCoinName: 'WQKI'
+          parisCoinName: 'WQKI',
+          contractAddress: this.contractAddress
         },
         {
           icon: require("../../assets/dappHome/exchange1.png"),
           title: "WQKI转QKI",
           routeName: 'exchange',
           coinName: 'WQKI',
-          parisCoinName: 'QKI'
+          parisCoinName: 'QKI',
+          contractAddress: this.contractAddress
         },
         {
           icon: require("../../assets/dappHome/help.png"),
-          title: "WQKI说明"
+          title: "WQKI说明",
+          routeName: 'desc'
         }]
     },
+
     goto(routeName, fromCoin, toCoin) {
       if(routeName == 'exchange'){
-        this.$router.push({name: routeName, params: {from: fromCoin, to: toCoin}})
+        this.$router.push({name: routeName, params: {from: fromCoin, to: toCoin, contractAddress: this.contractAddress}})
+      } else {
+        this.$router.push(routeName);
       }
     }
   }
