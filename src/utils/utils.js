@@ -21,6 +21,10 @@ const initEth = {
         // Handle the new chain.
         // Correctly handling chain changes can be complicated.
         // We recommend reloading the page unless you have a very good reason not to.
+        if(chainId != "0x539")
+        {
+          console.log("请使用qki主网")
+        }
         window.location.reload();
       });
       
