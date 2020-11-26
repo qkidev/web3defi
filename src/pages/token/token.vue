@@ -8,14 +8,14 @@
 
     <div class="padd_40">
       <div class="from_item grey_bg flex_v" v-if="address != ''">
-        <div class="smallerGrey2Txt alignLeft mb_10" style="color:red">通行证地址</div>
+        <div class="smallerGrey2Txt alignLeft mb_10" style="color:red">通证地址</div>
         <div class="input_wrap flex_h_between">
           <div class="bigTxt flex1 ellipsis">{{address}}</div>
           <div class="copy_btn smallestBlueTxt" @click="copy">复制</div>
         </div>
       </div>
       <div class="from_item flex_v">
-        <div class="smallerGrey2Txt alignLeft mb_10">通行证名称</div>
+        <div class="smallerGrey2Txt alignLeft mb_10">通证名称</div>
         <div class="input_wrap flex_h_center">
           <input type="text" placeholder="请输入您的通证名称" class="bigTxt flex1" v-model="name" />
         </div>
@@ -94,15 +94,15 @@ export default {
       let numReg = /^([1-9]\d*\.?\d*)|(0\.\d*[1-9])$/g;
       // let numReg
       if (this.name == "") {
-        Toast("请输入通行证名称！");
+        Toast("请输入通证名称！");
         return;
       }
       if (!enReg.test(this.name)) {
-        Toast("通行证名称只支持数字和字母组合！");
+        Toast("通证名称只支持数字和字母组合！");
         return;
       }
       if (this.shortName == "") {
-        Toast("请输入通行证缩写！");
+        Toast("请输入通证缩写！");
         return;
       }
       if (!(/^[a-zA-Z0-9]+$/g.test(this.shortName))) {
@@ -110,29 +110,28 @@ export default {
         return;
       }
       if (this.precision == "") {
-        Toast("请输入通行证精度！");
+        Toast("请输入通证精度！");
         return;
       }
       if (!numReg1.test(this.precision)) {
-        Toast("通行证精度只能是数字！");
+        Toast("通证精度只能是数字！");
         return;
       }
       if (this.totalAmount == "") {
-        Toast("请输入通行证总量！");
+        Toast("请输入通证总量！");
         return;
       }
       if (!numReg.test(this.precision)) {
-        Toast("请输入正确的通行总量！");
+        Toast("请输入正确的通证总量！");
         return;
       }
       this.loading = true;
       let factory = new ethers.ContractFactory(new_abi, bytecode, this.signer);
-      // factory.deploy("1","bitcoin",8,"btc")
       //部署
       let _this = this;
       factory
         .deploy(this.totalAmount, this.name, this.precision, this.shortName, {
-          gasLimit: 1000000,
+          gasLimit: 2000000,
           gasPrice: ethers.utils.parseUnits("100", "gwei")
         })
         .then(
@@ -177,7 +176,7 @@ export default {
       textarea.setSelectionRange(0, this.address.length); //核心
       document.execCommand("copy"); // 执行浏览器复制命令
       textarea.remove();
-      Toast('成功复制')
+      Toast('通证发布成功，通证合约地址复制成功')
       // return result;
     }
   }
