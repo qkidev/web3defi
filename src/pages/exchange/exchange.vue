@@ -5,17 +5,15 @@
       <div class="bigTxt flex1">{{from}}转{{to}}</div>
       <div class="back_bg_placeholder"></div>
     </div>
+    <div class="loading_section" v-if="loading">
+      <img :src="require('../../assets/loading.gif')" alt />
+    </div>
 
     <div class="padd_40">
       <div class="from_item flex_v">
         <div class="smallerGrey2Txt alignLeft mb_10">输入{{from}}</div>
         <div class="input_wrap flex_h_center">
-          <input
-            type="text"
-            placeholder="请输入兑换数量"
-            class="bigTxt flex1"
-            v-model="fromAmount"
-          />
+          <input type="text" placeholder="请输入兑换数量" class="bigTxt flex1" v-model="fromAmount" />
           <div class="hr"></div>
           <div class="smallestGrey1Txt">{{from}}</div>
         </div>
@@ -36,9 +34,6 @@
       </div>
       <div class="submit_btn flex_h_center_center normalInverseTxt" @click="submit">立即兑换</div>
     </div>
-    <van-popup v-model="loading">
-      <img :src="require('../../assets/loading.gif')" alt="">
-    </van-popup>
   </div>
 </template>
 
@@ -46,7 +41,7 @@
 import { initEth } from "@/utils/utils.js";
 import { ethers } from "ethers";
 import { abi } from "../dappHome/config";
-import { Toast } from 'vant';
+import { Toast } from "vant";
 
 export default {
   name: "home",
@@ -71,11 +66,11 @@ export default {
       this.$router.go(-1);
     },
     submit() {
-      if(this.loading){
+      if (this.loading) {
         return;
       }
-      if(this.fromAmount == ''){
-        Toast('请输入'+this.from);
+      if (this.fromAmount == "") {
+        Toast("请输入" + this.from);
         return;
       }
       let numReg = /^([1-9]\d*\.?\d*)|(0\.\d*[1-9])$/g;
@@ -84,7 +79,7 @@ export default {
         return;
       }
       this.loading = true;
-      if(this.from == 'QKI') {
+      if (this.from == "QKI") {
         this.qkiExchangeWqki();
       } else {
         this.wqkiExchangeQki();
@@ -96,45 +91,38 @@ export default {
         abi,
         this.signer
       ); //实例化合约对象
-      //wqki转qki就是调用合约方法 withdraw ，参数只有一个，就是数量，但是处理数值
-      var amount = ethers.utils.parseEther(this.fromAmount.toString());
 
-      // this.signer.getAddress().then(address => {
-        
-      // });
-      // 获取主网qki的余额
-        contract
-          .withdraw(amount, {
-            gasLimit: 80000,
-            gasPrice: ethers.utils.parseUnits("100", "gwei")
-          })
-          .then(
-            function(data) {
-              var hash = data.hash;
-              Toast("提交成功，等待区块打包，请等待片刻");
-              this.provider.waitForTransaction(hash).then(receipt => {
-                this.loading = false;
-                if(receipt.status == 1)
-                {
-                  Toast("区块打包成功，兑换成功", receipt);
-                }
-                else
-                {
-                  Toast("区块打包成功，兑换失败，请确认数量是否正确", receipt);
-                }
-              });
-            },
-            function(data) {
+      var amount = ethers.utils.parseEther(this.fromAmount.toString());
+      //wqki转qki就是调用合约方法 withdraw ，参数只有一个，就是数量，但是处理数值
+      contract
+        .withdraw(amount, {
+          gasLimit: 80000,
+          gasPrice: ethers.utils.parseUnits("100", "gwei")
+        })
+        .then(
+          data => {
+            var hash = data.hash;
+            Toast("提交成功，等待区块打包，请等待片刻");
+            this.provider.waitForTransaction(hash).then(receipt => {
               this.loading = false;
-              if (data.code == "INSUFFICIENT_FUNDS") {
-                Toast("矿工费不足");
-              } else if (data.code == 4001) {
-                Toast("用户取消");
+              if (receipt.status == 1) {
+                Toast("区块打包成功，兑换成功", receipt);
               } else {
-                Toast("错误代码:" + data.code);
+                Toast("区块打包成功，兑换失败，请确认数量是否正确", receipt);
               }
+            });
+          },
+          (data) => {
+            this.loading = false;
+            if (data.code == "INSUFFICIENT_FUNDS") {
+              Toast("矿工费不足");
+            } else if (data.code == 4001) {
+              Toast("用户取消");
+            } else {
+              Toast("错误代码:" + data.code);
             }
-          );
+          }
+        );
     },
     qkiExchangeWqki() {
       this.signer.getAddress().then(address => {
@@ -154,14 +142,13 @@ export default {
             this.provider.waitForTransaction(hash).then(receipt => {
               this.loading = false;
               if (receipt.status == 1) {
-                Toast("兑换成功");
-                this.fromAmount = '';
+                Toast("区块打包成功，兑换成功", receipt);
               } else {
-                Toast("兑换失败");
+                Toast("区块打包成功，兑换失败，请确认数量是否正确", receipt);
               }
             });
           },
-          function(data) {
+          (data) => {
             this.loading = false;
             if (data.code == "INSUFFICIENT_FUNDS") {
               Toast("矿工费不足");
@@ -234,18 +221,11 @@ export default {
   margin-bottom: 30px;
   border-radius: 10px;
 }
-.van-overlay{
-  background-color: transparent !important;
+.loading_section {
+  background-color: #fff;
 }
-.van-popup{
-  background-color: transparent !important;
-}
-.van-popup--center{
-  border-radius: 10px;
-  overflow: hidden;
-}
-.van-popup--center img{
-  width: 300px;
-  height: 150px;
+.loading_section img {
+  width: 150px;
+  height: 75px;
 }
 </style>

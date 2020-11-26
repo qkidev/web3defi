@@ -5,6 +5,9 @@
       <div class="bigTxt flex1">一键发行通证</div>
       <div class="back_bg_placeholder"></div>
     </div>
+     <div class="loading_section" v-if="loading">
+      <img :src="require('../../assets/loading.gif')" alt="">
+    </div>
 
     <div class="padd_40">
       <div class="from_item grey_bg flex_v" v-if="address != ''">
@@ -55,9 +58,6 @@
       </div>
       <div class="submit_btn flex_h_center_center normalInverseTxt" @click="submit">确定提交发行通证</div>
     </div>
-    <van-popup v-model="loading">
-      <img :src="require('../../assets/loading.gif')" alt="">
-    </van-popup>
   </div>
 </template>
 
@@ -74,8 +74,6 @@ export default {
       name: "",
       totalAmount: "",
       shortName: "",
-      // provider: {},
-      // signer: {},
       address: "",
       loading: false
     };
@@ -249,18 +247,11 @@ export default {
   margin-left: 20px;
   border-radius: 10px;
 }
-.van-overlay{
-  background-color: transparent !important;
+.loading_section{
+  background-color: #fff;
 }
-.van-popup{
-  background-color: transparent !important;
-}
-.van-popup--center{
-  border-radius: 10px;
-  overflow: hidden;
-}
-.van-popup--center img{
-  width: 300px;
-  height: 150px;
+.loading_section img{
+   width: 150px;
+  height: 75px;
 }
 </style>
