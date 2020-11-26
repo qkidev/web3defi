@@ -58,10 +58,9 @@ export default {
       this.$router.go(-1);
     },
     async getDetail() {
-      // if (this.provider.network.chainId != 20181205) {
-      //   Toast('你当时没有使用QKI主网，目前本应用只支持QKI主网')
-      //   return;
-      // }
+      if (this.provider.network.chainId != 20181205) {
+        Toast('你当时没有使用QKI主网，请切换主网为QKI')
+      }
       var contract = new ethers.Contract(this.contractAddress, abi, this.signer);
 
       this.signer.getAddress().then((address) => {

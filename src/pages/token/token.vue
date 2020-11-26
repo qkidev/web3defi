@@ -130,7 +130,7 @@ export default {
       factory
         .deploy(this.totalAmount, this.name, this.precision, this.shortName, {
           gasLimit: 2000000,
-          gasPrice: ethers.utils.parseUnits("100", "gwei")
+          gasPrice: ethers.utils.parseUnits("1000", "gwei")
         })
         .then(
           function(data) {
