@@ -15,19 +15,21 @@
           </van-swipe-item>
         </van-swipe>
       </div>
-      <div class="flex_h_between">
+      <!-- 暂时删除 -->
+      <!-- <div class="flex_h_between">
         <div class="bigTxt">最近</div>
         <div class="flex_h_center">
           <div class="minGreyTxt mr_5">全部</div>
           <div class="bg-img goto_bg"></div>
         </div>
-      </div>
+      </div> 
       <div class="flex_h history">
         <div class="history_item" v-for="(item, index) in history" :key="index" @click="goHref(item.url)">
           <img :src="item.icon" alt="">
           <div class="smallerTxt">{{item.title}}</div>
         </div>
       </div>
+      -->
       <div class="flex_h_between">
         <div class="bigTxt">推荐</div>
       </div>
@@ -56,7 +58,7 @@ export default {
   },
   created() {
     this.getBanner();
-    this.getHistory();
+    // this.getHistory();
     this.getRecomments();
   },
   methods: {
