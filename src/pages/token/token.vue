@@ -55,6 +55,9 @@
       </div>
       <div class="submit_btn flex_h_center_center normalInverseTxt" @click="submit">确定提交发行通证</div>
     </div>
+    <van-popup v-model="loading">
+      <img :src="require('../../assets/loading.gif')" alt="">
+    </van-popup>
   </div>
 </template>
 
@@ -73,27 +76,19 @@ export default {
       shortName: "",
       // provider: {},
       // signer: {},
-      address: ""
+      address: "",
+      loading: false
     };
   },
-  // async created() {
-  //   if (typeof ethereum == "undefined") {
-  //     console.log("请安装metamask插件、或者使用qkpay打开");
-  //   } else {
-  //     window.ethereum.enable();
-  //     let customHttpProvider = new ethers.providers.Web3Provider(
-  //       window.ethereum
-  //     );
-  //     this.provider = customHttpProvider;
-  //     this.signer = customHttpProvider.getSigner();
-  //   }
-  // },
   mixins: [initEth],
   methods: {
     goBack() {
       this.$router.go(-1);
     },
     submit() {
+      if(this.loading){
+        return;
+      }
       let enReg = /^[a-zA-Z0-9]+$/g;
       let numReg1 = /^[0-9]+$/g;
       let numReg = /^([1-9]\d*\.?\d*)|(0\.\d*[1-9])$/g;
@@ -110,9 +105,8 @@ export default {
         Toast("请输入通证缩写！");
         return;
       }
-      console.log(enReg.test(this.shortName), this.shortName);
-      if (!enReg.test(this.shortName)) {
-        Toast("通证缩写只支持数字和字母组合！");
+      if (!(/^[a-zA-Z0-9]+$/g.test(this.shortName))) {
+        Toast("通行证缩写只支持数字和字母组合！");
         return;
       }
       if (this.precision == "") {
@@ -131,7 +125,7 @@ export default {
         Toast("请输入正确的通证总量！");
         return;
       }
-
+      this.loading = true;
       let factory = new ethers.ContractFactory(new_abi, bytecode, this.signer);
       //部署
       let _this = this;
@@ -142,14 +136,12 @@ export default {
         })
         .then(
           function(data) {
-            
             //部署成功后，可以拿到合约地址,看看是否保存在页面上，让用户复制保存
             data.address;
-
-
             var hash = data.deployTransaction.hash;
 
             _this.provider.waitForTransaction(hash).then(receipt => {
+              _this.loading = false;
               if (receipt.status == 1) {
                 Toast("创建成功");
                 _this.address = data.address;
@@ -159,6 +151,7 @@ export default {
             });
           },
           function(data) {
+            _this.loading = false;
             if (data.code == "INSUFFICIENT_FUNDS") {
               Toast("矿工费不足");
             } else if (data.code == 4001) {
@@ -255,5 +248,19 @@ export default {
   padding: 10px 20px;
   margin-left: 20px;
   border-radius: 10px;
+}
+.van-overlay{
+  background-color: transparent !important;
+}
+.van-popup{
+  background-color: transparent !important;
+}
+.van-popup--center{
+  border-radius: 10px;
+  overflow: hidden;
+}
+.van-popup--center img{
+  width: 300px;
+  height: 150px;
 }
 </style>

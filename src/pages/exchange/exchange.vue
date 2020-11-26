@@ -36,6 +36,9 @@
       </div>
       <div class="submit_btn flex_h_center_center normalInverseTxt" @click="submit">立即兑换</div>
     </div>
+    <van-popup v-model="loading">
+      <img :src="require('../../assets/loading.gif')" alt="">
+    </van-popup>
   </div>
 </template>
 
@@ -44,6 +47,7 @@ import { initEth } from "@/utils/utils.js";
 import { ethers } from "ethers";
 import { abi } from "../dappHome/config";
 import { Toast } from 'vant';
+
 export default {
   name: "home",
   data() {
@@ -51,7 +55,8 @@ export default {
       from: "",
       to: "",
       fromAmount: "",
-      toAmount: ""
+      toAmount: "",
+      loading: false
     };
   },
   mixins: [initEth],
@@ -66,6 +71,9 @@ export default {
       this.$router.go(-1);
     },
     submit() {
+      if(this.loading){
+        return;
+      }
       if(this.fromAmount == ''){
         Toast('请输入'+this.from);
         return;
@@ -75,6 +83,7 @@ export default {
         Toast("请输入正确的通行总量！");
         return;
       }
+      this.loading = true;
       if(this.from == 'QKI') {
         this.qkiExchangeWqki();
       } else {
@@ -104,6 +113,7 @@ export default {
               var hash = data.hash;
               Toast("提交成功，等待区块打包，请等待片刻");
               this.provider.waitForTransaction(hash).then(receipt => {
+                this.loading = false;
                 if(receipt.status == 1)
                 {
                   Toast("区块打包成功，兑换成功", receipt);
@@ -115,6 +125,7 @@ export default {
               });
             },
             function(data) {
+              this.loading = false;
               if (data.code == "INSUFFICIENT_FUNDS") {
                 Toast("矿工费不足");
               } else if (data.code == 4001) {
@@ -141,6 +152,7 @@ export default {
             Toast("提交成功，等待区块打包，请等待片刻");
             var hash = tx.hash;
             this.provider.waitForTransaction(hash).then(receipt => {
+              this.loading = false;
               if (receipt.status == 1) {
                 Toast("兑换成功");
                 this.fromAmount = '';
@@ -150,6 +162,7 @@ export default {
             });
           },
           function(data) {
+            this.loading = false;
             if (data.code == "INSUFFICIENT_FUNDS") {
               Toast("矿工费不足");
             } else if (data.code == 4001) {
@@ -220,5 +233,19 @@ export default {
   margin-top: 200px;
   margin-bottom: 30px;
   border-radius: 10px;
+}
+.van-overlay{
+  background-color: transparent !important;
+}
+.van-popup{
+  background-color: transparent !important;
+}
+.van-popup--center{
+  border-radius: 10px;
+  overflow: hidden;
+}
+.van-popup--center img{
+  width: 300px;
+  height: 150px;
 }
 </style>

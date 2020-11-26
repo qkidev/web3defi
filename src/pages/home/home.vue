@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="header flex_h_center">
+    <div class="header flex_h_center_center">
       <div class="bg-img logo_bg"></div>
     </div>
     <div class="padd_40">
@@ -33,7 +33,7 @@
       </div>
       <div class="recomment_list">
         <div class="recomment_list_item flex_h" v-for="(item, index) in recomments" :key="index" @click="goto(item.routeName)">
-          <img :src="item.icon" alt="">
+          <img :src="item.icon" alt="" :class="[item.routeName == 'dappHome' ? 'dapp_icon' : '' ]">
           <div class="flex1 flex_v ellipsis">
             <div class="smallerGrey2Txt ellipsis alignLeft">{{item.title}}</div>
             <div class="minestGrey1Txt ellipsis alignLeft">{{item.desc}}</div>
@@ -125,8 +125,8 @@ export default {
   box-sizing: border-box;
 }
 .logo_bg {
-  width: 194px;
-  height: 40px;
+  width: 114px;
+  height: 75px;
   background-image: url("../../assets/home/logo.png");
 }
 .swiper_wrap {
@@ -198,5 +198,9 @@ export default {
   width: 80px;
   height: 80px;
   margin-right: 50px;
+}
+.recomment_list_item .dapp_icon{
+  width: 80px;
+  height: 70px;
 }
 </style>
