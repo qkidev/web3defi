@@ -59,7 +59,8 @@ export default {
     },
     async getDetail() {
       if (window.ethereum.networkVersion != 20181205) {
-        Toast('你当前没有使用QKI主网，请切换主网为QKI')
+        Toast('你当前没有使用QKI主网，请切换主网为QKI');
+        return;
       }
       var contract = new ethers.Contract(this.contractAddress, abi, this.signer);
 
