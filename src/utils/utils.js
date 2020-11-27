@@ -26,7 +26,9 @@ const initEth = {
         {
           Toast('请使用qki主网')
         }
-        window.location.reload();
+        setTimeout(function(){
+          window.location.reload()
+        }, 2500)
       });
       
       this.provider = customHttpProvider;
