@@ -42,13 +42,10 @@ export default {
       parisCoinName: 'WQKI',
       coinName: 'QKI',
       grids: [],
-      contractAddress: '0x835F6dF988B6f51c9477D49e96aDBbc644ba97a2'
+      contractAddress: '0x835F6dF988B6f51c9477D49e96aDBbc644ba97a2',
     };
   },
    mixins: [initEth],
-  created() {
-    // this.getDetail();
-  },
   mounted() {
     this.getDetail();
     // this.submit();
@@ -58,12 +55,11 @@ export default {
       this.$router.go(-1);
     },
     async getDetail() {
-      if (window.ethereum.networkVersion != 20181205) {
-        Toast('你当前没有使用QKI主网，请切换主网为QKI');
+      if(!await this.isQKI()){
         return;
       }
       var contract = new ethers.Contract(this.contractAddress, abi, this.signer);
-
+      
       this.signer.getAddress().then((address) => {
         // 获取主网qki的余额
         this.provider.getBalance(address).then((balance) => {

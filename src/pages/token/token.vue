@@ -75,7 +75,7 @@ export default {
       totalAmount: "",
       shortName: "",
       address: "",
-      loading: false
+      loading: false,
     };
   },
   mixins: [initEth],
@@ -83,9 +83,8 @@ export default {
     goBack() {
       this.$router.go(-1);
     },
-    submit() {
-      if (window.ethereum.networkVersion != 20181205) {
-        Toast('你当前没有使用QKI主网，请切换主网为QKI');
+    async submit() {
+      if(!await this.isQKI()){
         return;
       }
       if(this.loading){

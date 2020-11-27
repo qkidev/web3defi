@@ -29,12 +29,24 @@ const initEth = {
         setTimeout(function(){
           window.location.reload()
         }, 2500)
+        // window.location.reload();
       });
-      
+
       this.provider = customHttpProvider;
       this.signer = customHttpProvider.getSigner();
     }
   },
+  methods: {
+    async isQKI() {
+      let network = await this.provider.getNetwork();
+      let networkVersion = network.chainId;
+      if (networkVersion != 20181205) {
+        Toast('你当前没有使用QKI主网，请切换主网为QKI');
+        return false
+      }
+      return true;
+    }
+  }
 }
 
 export {
