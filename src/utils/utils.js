@@ -19,7 +19,7 @@ const initEth = {
         window.ethereum
       );
 
-      if (ethereum.isMetaMask) {
+      if (window.ethereum.isMetaMask) {
         window.ethereum
           .request({
             method: 'net_version'
@@ -34,24 +34,34 @@ const initEth = {
             // If the request fails, the Promise will reject with an error.
             console.log(error)
           });
-
-        window.ethereum.on('chainChanged', (chainId) => {
-          // Handle the new chain.
-          // Correctly handling chain changes can be complicated.
-          // We recommend reloading the page unless you have a very good reason not to.
-          if (chainId != "0x133f0d5") {
-            Toast('请使用qki主网')
-          }
-          setTimeout(function () {
-            window.location.reload()
-          }, 2500)
-        });
       }
+      window.ethereum.on('chainChanged', (chainId) => {
+        // Handle the new chain.
+        // Correctly handling chain changes can be complicated.
+        // We recommend reloading the page unless you have a very good reason not to.
+        if (chainId != "0x133f0d5") {
+          Toast('请使用qki主网')
+        }
+        setTimeout(function () {
+          window.location.reload()
+        }, 2500)
+      });
 
       this.provider = customHttpProvider;
       this.signer = customHttpProvider.getSigner();
     }
   },
+  methods: {
+    async isQKI() {
+      let network = await this.provider.getNetwork();
+      let networkVersion = network.chainId;
+      if (networkVersion != 20181205) {
+        Toast('你当前没有使用QKI主网，请切换主网为QKI');
+        return false
+      }
+      return true;
+    }
+  }
 }
 
 export {

@@ -75,7 +75,7 @@ export default {
       totalAmount: "",
       shortName: "",
       address: "",
-      loading: false
+      loading: false,
     };
   },
   mixins: [initEth],
@@ -83,10 +83,16 @@ export default {
     goBack() {
       this.$router.go(-1);
     },
-    submit() {
+    async submit() {
       if(this.loading){
         return;
       }
+      this.loading = true;
+      if(!await this.isQKI()){
+        this.loading = false;
+        return;
+      }
+      this.loading = false;
       let enReg = /^[a-zA-Z0-9]+$/g;
       let numReg1 = /^[0-9]+$/g;
       let numReg = /^([1-9]\d*\.?\d*)|(0\.\d*[1-9])$/g;

@@ -5,6 +5,9 @@
       <div class="bigTxt flex1">WQKI</div>
       <div class="back_bg_placeholder"></div>
     </div>
+    <div class="loading_section" v-if="loading">
+      <img :src="require('../../assets/loading.gif')" alt="">
+    </div>
     
     <div class="padd_40">
       <div class="asset_section flex_h">
@@ -42,13 +45,11 @@ export default {
       parisCoinName: 'WQKI',
       coinName: 'QKI',
       grids: [],
-      contractAddress: '0x835F6dF988B6f51c9477D49e96aDBbc644ba97a2'
+      contractAddress: '0x835F6dF988B6f51c9477D49e96aDBbc644ba97a2',
+      loading: false
     };
   },
    mixins: [initEth],
-  created() {
-    // this.getDetail();
-  },
   mounted() {
     this.getDetail();
     // this.submit();
@@ -58,9 +59,14 @@ export default {
       this.$router.go(-1);
     },
     async getDetail() {
-
+      this.loading = true;
+      if(!await this.isQKI()){
+        this.loading = false;
+        return;
+      }
+      this.loading = false;
       var contract = new ethers.Contract(this.contractAddress, abi, this.signer);
-
+      
       this.signer.getAddress().then((address) => {
         // 获取主网qki的余额
         this.provider.getBalance(address).then((balance) => {
@@ -160,5 +166,12 @@ export default {
   width: 52px;
   height: 52px;
   margin-bottom: 33px;
+}
+.loading_section{
+  background-color: #fff;
+}
+.loading_section img{
+   width: 150px;
+  height: 75px;
 }
 </style>
