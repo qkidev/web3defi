@@ -84,12 +84,15 @@ export default {
       this.$router.go(-1);
     },
     async submit() {
-      if(!await this.isQKI()){
-        return;
-      }
       if(this.loading){
         return;
       }
+      this.loading = true;
+      if(!await this.isQKI()){
+        this.loading = false;
+        return;
+      }
+      this.loading = false;
       let enReg = /^[a-zA-Z0-9]+$/g;
       let numReg1 = /^[0-9]+$/g;
       let numReg = /^([1-9]\d*\.?\d*)|(0\.\d*[1-9])$/g;
