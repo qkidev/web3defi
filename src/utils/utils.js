@@ -1,4 +1,5 @@
 import { ethers } from "ethers";
+import {Toast} from 'vant';
 const initEth = {
   data(){
     return {
@@ -8,7 +9,7 @@ const initEth = {
   },
   async created() {
     if (typeof ethereum == "undefined") {
-      console.log("请安装metamask插件、或者使用qkpay打开");
+      Toast('请安装metamask插件、或者使用qkpay打开')
     } else {
       // const qkiUrk = 'https://hz.node.quarkblockchain.cn ';
       // let customHttpProvider = new ethers.providers.JsonRpcProvider(qkiUrk);
@@ -23,7 +24,7 @@ const initEth = {
         // We recommend reloading the page unless you have a very good reason not to.
         if(chainId != "0x539")
         {
-          console.log("请使用qki主网")
+          Toast('请使用qki主网')
         }
         window.location.reload();
       });
