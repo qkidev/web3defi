@@ -1,10 +1,11 @@
 import { ethers } from "ethers";
-import {Toast} from 'vant';
+import { Toast } from 'vant';
 const initEth = {
-  data(){
+  data() {
     return {
       provider: {},
       signer: {},
+      chainId: 0
     }
   },
   async created() {
@@ -18,19 +19,35 @@ const initEth = {
         window.ethereum
       );
 
-      window.ethereum.on('chainChanged', (chainId) => {
-        // Handle the new chain.
-        // Correctly handling chain changes can be complicated.
-        // We recommend reloading the page unless you have a very good reason not to.
-        if(chainId != "0x539")
-        {
-          Toast('请使用qki主网')
-        }
-        setTimeout(function(){
-          window.location.reload()
-        }, 2500)
-      });
-      
+      if (ethereum.isMetaMask) {
+        window.ethereum
+          .request({
+            method: 'net_version'
+          })
+          .then((chainId) => {
+            //可以把
+            if (chainId != "20181205")
+              Toast('请使用QKI主网,请切换到QKI主网')
+            this.chainId = chainId;
+          })
+          .catch((error) => {
+            // If the request fails, the Promise will reject with an error.
+            console.log(error)
+          });
+
+        window.ethereum.on('chainChanged', (chainId) => {
+          // Handle the new chain.
+          // Correctly handling chain changes can be complicated.
+          // We recommend reloading the page unless you have a very good reason not to.
+          if (chainId != "0x133f0d5") {
+            Toast('请使用qki主网')
+          }
+          setTimeout(function () {
+            window.location.reload()
+          }, 2500)
+        });
+      }
+
       this.provider = customHttpProvider;
       this.signer = customHttpProvider.getSigner();
     }
