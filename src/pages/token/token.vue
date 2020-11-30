@@ -121,11 +121,15 @@ export default {
         Toast("通证精度只能是数字！");
         return;
       }
+      if (this.precision < 0 || this.precision > 18) {
+        Toast("通证精度范围0-18");
+        return;
+      }
       if (this.totalAmount == "") {
         Toast("请输入通证总量！");
         return;
       }
-      if (!numReg.test(this.precision)) {
+      if (!numReg.test(this.totalAmount)) {
         Toast("请输入正确的通证总量！");
         return;
       }
