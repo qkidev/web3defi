@@ -34,6 +34,7 @@ contract master_node{
     }
     
     function update_node(uint index,address new_node)public {
+        if(msg.sender != owner)revert();
         master_nodes[index] = new_node;
     }
     
