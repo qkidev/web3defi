@@ -35,7 +35,7 @@
       </div>
       <div class="recomment_list">
         <div class="recomment_list_item flex_h" v-for="(item, index) in recomments" :key="index" @click="goto(item.routeName)">
-          <img :src="item.icon" alt="" :class="[item.routeName == 'dappHome' ? 'dapp_icon' : '' ]">
+          <img :src="item.icon" alt="" :class="[item.routeName == 'dappHome' ? 'dapp_icon' : (item.routeName)+'_dapp_icon' ]">
           <div class="flex1 flex_v ellipsis">
             <div class="smallerGrey2Txt ellipsis alignLeft">{{item.title}}</div>
             <div class="minestGrey1Txt ellipsis alignLeft">{{item.desc}}</div>
@@ -103,6 +103,12 @@ export default {
           title: "一键发布通证",
           desc: "输入通证总量、通证名称、通证精度，通证缩写即可发布",
           routeName: 'token'
+        },
+        {
+          icon: require("../../assets/temp/3.png"),
+          title: "超级节点",
+          desc: "基于合约部署的超级节点管理工具",
+          routeName: 'superNode'
         }
       ];
     },
@@ -204,5 +210,9 @@ export default {
 .recomment_list_item .dapp_icon{
   width: 80px;
   height: 70px;
+}
+.recomment_list_item .superNode_dapp_icon{
+  width: 80px;
+  height: 86px;
 }
 </style>
