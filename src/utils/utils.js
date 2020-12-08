@@ -60,7 +60,10 @@ const initEth = {
         return false
       }
       return true;
-    }
+    },
+    to(fnPromise){
+      return fnPromise.then(res => [null, res]).catch(error => [error]);
+    },
   }
 }
 
