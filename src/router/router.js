@@ -6,6 +6,7 @@ import DappHome from '@/pages/dappHome/dappHome';
 import Exchange from '@/pages/exchange/exchange';
 import Token from '@/pages/token/token';
 import Desc from '@/pages/desc/desc';
+import SuperNode from '@/pages/superNode/superNode';
 Vue.use(Router);
 
 export default new Router({
@@ -38,5 +39,11 @@ export default new Router({
     name: 'desc',
     component: Desc
   },
+  {
+    path: '/superNode',
+    name: 'superNode',
+    component: SuperNode
+  },
+  
   ]
 })

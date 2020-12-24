@@ -8,7 +8,7 @@ $normalFontSize: 28px;
 $middleFontSize: 30px;
 $bigFontSize: 32px;
 $bigerFontSize: 34px;
-$biggestFontSize: 36px;
+$biggestFontSize: 40px;
 $hugeFontSize: 70px;
 $hugerFontSize: 80;
 $hugestFontSize: 90;
@@ -64,6 +64,11 @@ $text_blue_color: #79A0FF;
   font-size: $smallerFontSize;
   font-weight: 500;
 }
+.smallInserveTxt{
+  color: $text_inverse_color;
+  font-size: $smallFontSize;
+  font-weight: 300; 
+}
 .normalInverseTxt{
   color: $text_inverse_color;
   font-size: $normalFontSize;
@@ -74,7 +79,11 @@ $text_blue_color: #79A0FF;
   font-size: $bigFontSize;
   font-weight: 500;
 }
-
+.biggestInverseTxt{
+  color: $text_inverse_color;
+  font-size: $biggestFontSize;
+  font-weight: 300;
+}
 
 
 
@@ -129,6 +138,18 @@ $text_blue_color: #79A0FF;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+}
+.flex_v_center_end{
+	display: flex;
+	flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+.flex_v_center_center{
+  display: flex;
+	flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 .flex_v_end{
 	display: flex;
@@ -201,6 +222,21 @@ $text_blue_color: #79A0FF;
 .padd_40{
   padding-left: 40px;
   padding-right: 40px;
+}
+.mt_20{
+  margin-top: 20px;
+}
+.mt_50{
+  margin-top: 50px;
+}
+.mt_70{
+  margin-top: 70px;
+}
+.mt_80{
+  margin-top: 80px;
+}
+.mt_100{
+  margin-top: 100px;
 }
 
 ::placeholder{
