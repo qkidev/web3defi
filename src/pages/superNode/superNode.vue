@@ -121,7 +121,7 @@ export default {
         Toast('您当前还没有收益可领取！')
         return;
       }
-      let [error, res] = await this.to(this.contract.deposit());
+      let [error, res] = await this.to(this.contract.withdraw());
       if (this.doResponse(error, res, "")) {
         this.show = false;
         Toast("提现成功！");
