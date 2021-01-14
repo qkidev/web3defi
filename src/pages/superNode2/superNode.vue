@@ -7,7 +7,7 @@
     </div> -->
     <div class="head flex_v_center">
       <div style="align-self: flex-end; margin-top: 5px; margin-bottom: 5px">
-        <div class="rule_bg flex_h_center_center normalInverseBoldTxt">
+        <div class="rule_bg flex_h_center_center normalInverseBoldTxt" @click="gotoRule">
           规则
         </div>
       </div>
@@ -391,6 +391,9 @@ export default {
     },
     goBack() {
       this.$router.go(-1);
+    },
+    gotoRule() {
+      this.$router.push("superNode2Rule")
     },
     // 初始化数据
     async init() {
