@@ -65,7 +65,7 @@ export default {
     return {
       show: false,
       contractAddress: '0xbabca83f796841d4FC60789D8745fe6ee5687353', // 合约地址
-      myAddress:'', // 我的地址
+      // myAddress:'', // 我的地址
       balance: '', // 合约余额
       nodeIncome: '', // 节点收益
       nodeAmount: 0, // 节点数量
@@ -73,26 +73,18 @@ export default {
     }
   },
   mixins: [initEth],
-  async created() {
-    await this.getAddress();
-    var contract = new ethers.Contract(this.contractAddress, abi, this.signer);
-    this.contract = contract;
-    // this.getBalance();
-    this.getNodeIncome();
-    this.getNodeAmount()
+  watch: {
+    myAddress() {
+      var contract = new ethers.Contract(this.contractAddress, abi, this.signer);
+      this.contract = contract;
+      this.getNodeIncome();
+      this.getNodeAmount()
+    }
   },
   methods: {
-    // 获取地址
-     async getAddress() {
-      let [error, address] = await this.to(this.signer.getAddress());
-      if(error == null){
-        this.myAddress = address;
-      } else {
-        console.log(error)
-      }
-    },
     // 得到节点收益
     async getNodeIncome() {
+      console.log(this.myAddress)
       let [error, balance] = await this.to(this.contract.balanceOf(this.myAddress));
       this.doResponse(error, balance, "nodeIncome",this.decimals);
     },
