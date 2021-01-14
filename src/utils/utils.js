@@ -1,57 +1,78 @@
 import { ethers } from "ethers";
 import { Toast } from 'vant';
+import Big from 'big.js'
 const initEth = {
   data() {
     return {
       provider: {},
       signer: {},
-      chainId: 0
+      chainId: 0,
+      myAddress: ''
     }
   },
   async created() {
-    if (typeof ethereum == "undefined") {
-      Toast('请安装metamask插件、或者使用qkpay打开')
-    } else {
-      // const qkiUrk = 'https://hz.node.quarkblockchain.cn ';
-      // let customHttpProvider = new ethers.providers.JsonRpcProvider(qkiUrk);
-      window.ethereum.enable();
-      let customHttpProvider = new ethers.providers.Web3Provider(
-        window.ethereum
-      );
+    if (typeof window.getPrivateKey === 'undefined') {
+      if (typeof ethereum == "undefined") {
+        // Toast('请安装metamask插件、或者使用qkpay打开')
+        await this.waitInject()
+      } else {
+        window.ethereum.enable();
+        let customHttpProvider = new ethers.providers.Web3Provider(
+          window.ethereum
+        );
 
-      if (window.ethereum.isMetaMask) {
-        window.ethereum
-          .request({
-            method: 'net_version'
-          })
-          .then((chainId) => {
-            //可以把
-            if (chainId != "20181205")
-              Toast('请使用QKI主网,请切换到QKI主网')
-            this.chainId = chainId;
-          })
-          .catch((error) => {
-            // If the request fails, the Promise will reject with an error.
-            console.log(error)
-          });
-      }
-      window.ethereum.on('chainChanged', (chainId) => {
-        // Handle the new chain.
-        // Correctly handling chain changes can be complicated.
-        // We recommend reloading the page unless you have a very good reason not to.
-        if (chainId != "0x133f0d5") {
-          Toast('请使用qki主网')
+        if (window.ethereum.isMetaMask) {
+          window.ethereum
+            .request({
+              method: 'net_version'
+            })
+            .then((chainId) => {
+              //可以把
+              if (chainId != "20181205")
+                Toast('请使用QKI主网,请切换到QKI主网')
+              this.chainId = chainId;
+            })
+            .catch((error) => {
+              // If the request fails, the Promise will reject with an error.
+              console.log(error)
+            });
         }
-        setTimeout(function () {
-          window.location.reload()
-        }, 2500)
-      });
+        window.ethereum.on('chainChanged', (chainId) => {
+          if (chainId != "0x133f0d5") {
+            Toast('请使用qki主网')
+          }
+          // setTimeout(function () {
+          //   window.location.reload()
+          // }, 2500)
+        });
 
-      this.provider = customHttpProvider;
-      this.signer = customHttpProvider.getSigner();
+        this.provider = customHttpProvider;
+        this.signer = customHttpProvider.getSigner();
+      }
+    } else {
+      const privateKey = window.getPrivateKey()
+      this.provider = new ethers.providers.JsonRpcProvider({ url: 'https://hz.node.quarkblockchain.cn' })
+      this.signer = new ethers.Wallet(privateKey, this.provider)
     }
+    await this.getAddress()
   },
   methods: {
+    // 等待android注入结果
+    async waitInject () {
+      clearInterval(this.waitInjectTimer)
+      if (typeof window.getPrivateKey === 'undefined') {
+        console.log('1111111====233333')
+        this.waitInjectTimer = setTimeout(() => {
+          this.waitInject()
+        }, 1000)
+      } else {
+        clearInterval(this.waitInjectTimer)
+        const privateKey = window.getPrivateKey()
+        this.provider = new ethers.providers.JsonRpcProvider({ url: 'https://hz.node.quarkblockchain.cn' })
+        this.signer = new ethers.Wallet(privateKey, this.provider)
+        await this.getAddress()
+      }
+    },
     async isQKI() {
       let network = await this.provider.getNetwork();
       let networkVersion = network.chainId;
@@ -61,12 +82,92 @@ const initEth = {
       }
       return true;
     },
-    to(fnPromise){
+    to(fnPromise) {
       return fnPromise.then(res => [null, res]).catch(error => [error]);
     },
+    // 获取地址
+    async getAddress () {
+      const [error, address] = await this.to(this.signer.getAddress())
+      console.log("getAddress======", address)
+      if (error == null) {
+        this.myAddress = address
+      } else {
+        console.log(error)
+      }
+    },
+    // 查询Transaction,完成后回调
+    async queryTransation (hash, fnCallback) {
+      await this.provider.waitForTransaction(hash).then(async receipt => {
+        if (receipt.status === 0) {
+          Toast('合约调用失败', receipt)
+        } else {
+          Toast('合约调用成功', receipt)
+        }
+        fnCallback && fnCallback()
+      })
+    },
+  }
+}
+Big.DP = 18
+Big.NE = -19
+
+window.Big = Big
+
+const Decimal = {
+  add(a, b) {
+    try {
+      return Big(a).add(Big(b))
+    } catch {
+      console.log('')
+    }
+  },
+  sub(a, b) {
+    try {
+      return Big(a).sub(Big(b))
+    } catch {
+      console.log('')
+    }
+  },
+  mul(a, b) {
+    try {
+      return Big(a).mul(Big(b))
+    } catch {
+      console.log('')
+    }
+  },
+  div(a, b) {
+    try {
+      return Big(a).div(Big(b))
+    } catch {
+      console.log('')
+    }
+  },
+}
+
+const h5Copy = {
+  methods: {
+    h5Copy(content) {
+      if (!document.queryCommandSupported('copy')) {
+        // 不支持
+        return false
+      }
+
+      let textarea = document.createElement("textarea")
+      textarea.value = content
+      textarea.readOnly = "readOnly"
+      document.body.appendChild(textarea)
+      textarea.select() // 选择对象
+      textarea.setSelectionRange(0, content.length) //核心
+      document.execCommand("copy") // 执行浏览器复制命令
+      textarea.remove()
+      Toast('复制成功');
+
+    }
   }
 }
 
 export {
-  initEth
+  initEth,
+  Decimal,
+  h5Copy
 }
