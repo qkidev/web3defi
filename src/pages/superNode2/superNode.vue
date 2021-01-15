@@ -6,12 +6,10 @@
       <div class="back_bg_placeholder"></div>
     </div> -->
     <div class="head flex_v_center">
-      <div style="align-self: flex-end; margin-top: 5px; margin-bottom: 5px">
-        <div class="rule_bg flex_h_center_center normalInverseBoldTxt" @click="gotoRule">
-          规则
-        </div>
-      </div>
-      <img
+    
+      <div class="flex_h_between" style="width: 100%;margin-top: 5px; margin-bottom: 5px">
+        <div class="flex_v">
+        <img
         :src="require('../../assets/superNode2/logo1.png')"
         alt=""
         class="logo1"
@@ -21,6 +19,13 @@
         alt=""
         class="logo2"
       />
+      </div>
+        <div class="rule_bg flex_h_center_center normalInverseBoldTxt" @click="gotoRule">
+          规则
+        </div>
+      </div>
+      
+      
       <div
         class="pool_bg flex_h_center_center mt_50 hugestInverseBoldTxt"
         @click="openTogglePool('togglePoolShow')"
@@ -39,7 +44,7 @@
       </div>
       <div class="smallInverseTxt mt_50">当前合约地址内余额</div>
       <div class="biggestInverseThinTxt mt_20">{{ totalSupply }}</div>
-      <div class="smallInverseThinTxt mt_20">QKI</div>
+      <div class="smallInverseThinTxt mt_20" style="opacity: 0.5">QKI</div>
     </div>
     <div class="hy">
       <div class="space-between">
@@ -52,26 +57,29 @@
         />
       </div>
     </div>
-    <!-- <div class="hr_v"></div> -->
-    <div class="flex_h_center">
-      <div class="flex_v_center_center flex1">
-        <div class="smallInverseTxt">凭证数量</div>
-        <div class="smallInverseTxt mt_50">{{ balance }}</div>
-      </div>
-      <div class="hr_h"></div>
-      <div class="flex_v_center flex1">
-        <div class="smallInverseTxt">存入数量(QKI)</div>
-        <div class="smallInverseTxt mt_50">{{ storeAmount }}</div>
-      </div>
+    <div class="flex_h_between flex1">
+      <div class="smallInverseTxt">凭证数量</div>
+      <div class="biggestInverseThinTxt">{{ balance }}</div>
     </div>
     <div class="hr_v"></div>
-    <div class="flex_h">
-      <div class="smallInverseTxt flex1">当前QKI价格</div>
-      <div class="flex1">
-        <span class="biggerInverseThinTxt">{{ price }} </span>
+    <div class="flex_h_between flex1">
+      <div class="smallInverseTxt">存入数量(QKI)</div>
+      <div class="biggestInverseThinTxt">{{ storeAmount }}</div>
+    </div>
+    <div class="hr_v"></div>
+    <div class="flex_h_between flex1">
+      <div class="smallInverseTxt">赚取总额(USDT)</div>
+      <div class="biggestInverseThinTxt">{{ withDrawAmount }}</div>
+    </div>
+    <div class="hr_v"></div>
+    <div class="flex_h_between">
+      <div class="smallInverseTxt">当前QKI价格</div>
+      <div>
+        <span class="biggestInverseThinTxt">{{ price }} </span>
         <span class="smallerInverseThinTxt">USDT</span>
       </div>
     </div>
+    <div class="hr_v"></div>
     <div class="fixed_bottom_placeholder"></div>
     <div class="fixed_bottom flex_v" v-if="balance != 0">
       <div class="flex_h_between">
@@ -160,7 +168,7 @@
             mode
           />
           <div class="align-center mt_50">
-            <div class="bigFontThinTxt">升级10U星际池</div>
+            <div class="bigFontThinTxt">升级100U星际池</div>
           </div>
           <div class="input-box space-between">
             <input
@@ -344,6 +352,7 @@ export default {
       balance: "0.00", // 当前星球的凭证数量
       amount: "",
       storeAmount: "0.00",
+      withDrawAmount: "0.00", // 累计提现总额
       totalSupply: "0.00", // 全网通证总量
       withDrawShow: false,
       bgShow: false,
@@ -472,6 +481,10 @@ export default {
         let Value =
           this.hex2int(hex) / ethers.BigNumber.from(10).pow(this.decimals);
         this.storeAmount = Value;
+        let withDrawAmount = ethers.utils.hexValue(res[1]);
+        let withDrawAmountValue =
+          this.hex2int(withDrawAmount) / ethers.BigNumber.from(10).pow(6);
+        this.withDrawAmount = withDrawAmountValue;
       }
     },
     // 获得当前价格
@@ -651,7 +664,7 @@ export default {
   $biggestFontSize: 46px;
   $hugeFontSize: 50px;
   $hugerFontSize: 80px;
-  $hugestFontSize: 76px;
+  $hugestFontSize: 60px;
   $inverse_color: #fff;
   $input_color: #ebebeb;
   $font_color: #333;
@@ -729,12 +742,13 @@ export default {
   .biggestInverseThinTxt {
     color: $inverse_color;
     font-size: $biggestFontSize;
-    font-weight: 200;
+    font-weight: 100;
+    opacity: 0.5;
   }
   .hugestInverseBoldTxt {
     color: $inverse_color;
     font-size: $hugestFontSize;
-    font-weight: 800;
+    font-weight: 900;
   }
   .mt_65 {
     margin-top: 65px;
