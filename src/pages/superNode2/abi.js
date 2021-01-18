@@ -1,4 +1,4 @@
-const abi=[
+const abi = [
 	{
 		"inputs": [
 			{
@@ -286,6 +286,16 @@ const abi=[
 				"internalType": "uint256",
 				"name": "withdraw",
 				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "depositUsdtValue",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "withdrawtUsdtValue",
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
@@ -321,7 +331,8 @@ const abi=[
 		"stateMutability": "payable",
 		"type": "receive"
 	}
-]
+];
+
 const abiPro=[
 	{
 		"inputs": [
@@ -1039,6 +1050,6 @@ const abiPro=[
 	}
 ];
 export {
-  abi,
-  abiPro
+	abi,
+	abiPro
 }

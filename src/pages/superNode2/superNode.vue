@@ -352,7 +352,10 @@ export default {
       balance: "0.00", // 当前星球的凭证数量
       amount: "",
       storeAmount: "0.00",
-      withDrawAmount: "0.00", // 累计提现总额
+      // withDrawAmount: "0.00", // 累计提现总额
+      depositUsdtValue: 0, // 累计存入usdt价值
+      withdrawtUsdtValue: 0, // 累计提现usdt价值
+      contractQkiBalance: 0, // 合约的qki总量
       totalSupply: "0.00", // 全网通证总量
       withDrawShow: false,
       bgShow: false,
@@ -382,6 +385,19 @@ export default {
     this.init();
   },
   mixins: [h5Copy, initEth, Decimal],
+  computed: {
+    withDrawAmount: function() {
+      // 占比
+      const stake = Decimal.div(this.balance, this.totalSupply);
+      // 池内qki数量
+      const balanceQki = Decimal.mul(stake, this.contractQkiBalance);
+      // 池内qki数量usdt
+      let usdtPrice = Decimal.mul(balanceQki, this.price);
+      usdtPrice = Number(stake && stake.valueOf()||0).toFixed(6)
+      const withDrawAmountValue =  Decimal.add(Decimal.sub(usdtPrice, this.depositUsdtValue), this.withdrawtUsdtValue)
+      return withDrawAmountValue
+    },
+  },
   methods: {
     openTogglePool(keyName) {
       this.tempPool = this.currPool;
@@ -408,7 +424,8 @@ export default {
     async init() {
       this.getTotalSupply();
       await this.getBalance();
-      this.getPrice();
+      await this.getPrice();
+      await this.getContractQkiBalance();
       if (this.balance !== 0) {
         this.geUsers();
         this.getWithdrawPrice();
@@ -434,15 +451,17 @@ export default {
       }
     },
     // 获取主网qki的余额
-    async getQkiBalance() {
+    async getContractQkiBalance() {
       let [error, balance] = await this.to(
-        this.provider.getBalance(this.myAddress)
+        this.provider.getBalance(this.contractAddress)
       );
       if (error == null) {
         let etherString = ethers.utils.formatEther(balance);
-        return parseFloat(etherString);
+        console.log('getQkiBalance======', etherString)
+        // return parseFloat(etherString);
+        this.contractQkiBalance = parseFloat(etherString);
       }
-      return 0.0;
+      // return 0.0;
     },
     // 得到凭证数量
     async getBalance() {
@@ -477,14 +496,20 @@ export default {
     async geUsers() {
       let [error, res] = await this.to(this.contract.users(this.myAddress));
       if (this.doResponse(error, res)) {
+        // 累计存入qki数量
         let hex = ethers.utils.hexValue(res[0]);
         let Value =
           this.hex2int(hex) / ethers.BigNumber.from(10).pow(this.decimals);
         this.storeAmount = Value;
-        let withDrawAmount = ethers.utils.hexValue(res[1]);
-        let withDrawAmountValue =
-          this.hex2int(withDrawAmount) / ethers.BigNumber.from(10).pow(6);
-        this.withDrawAmount = withDrawAmountValue;
+        // 获得累计存入usdt
+        let depositUsdt = ethers.utils.hexValue(res[2]);
+        let depositUsdtValue =
+          this.hex2int(depositUsdt) / ethers.BigNumber.from(10).pow(6);
+        this.depositUsdtValue = depositUsdtValue;
+        let withdrawtUsdt = ethers.utils.hexValue(res[3]);
+        let withdrawtUsdtValue =
+          this.hex2int(withdrawtUsdt) / ethers.BigNumber.from(10).pow(6);
+        this.withdrawtUsdtValue = withdrawtUsdtValue;
       }
     },
     // 获得当前价格
