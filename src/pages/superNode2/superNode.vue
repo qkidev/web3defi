@@ -6,12 +6,10 @@
       <div class="back_bg_placeholder"></div>
     </div> -->
     <div class="head flex_v_center">
-      <div style="align-self: flex-end; margin-top: 5px; margin-bottom: 5px">
-        <div class="rule_bg flex_h_center_center normalInverseBoldTxt">
-          规则
-        </div>
-      </div>
-      <img
+    
+      <div class="flex_h_between" style="width: 100%;margin-top: 5px; margin-bottom: 5px">
+        <div class="flex_v">
+        <img
         :src="require('../../assets/superNode2/logo1.png')"
         alt=""
         class="logo1"
@@ -21,6 +19,13 @@
         alt=""
         class="logo2"
       />
+      </div>
+        <div class="rule_bg flex_h_center_center normalInverseBoldTxt" @click="gotoRule">
+          规则
+        </div>
+      </div>
+      
+      
       <div
         class="pool_bg flex_h_center_center mt_50 hugestInverseBoldTxt"
         @click="openTogglePool('togglePoolShow')"
@@ -39,7 +44,7 @@
       </div>
       <div class="smallInverseTxt mt_50">当前合约地址内余额</div>
       <div class="biggestInverseThinTxt mt_20">{{ totalSupply }}</div>
-      <div class="smallInverseThinTxt mt_20">QKI</div>
+      <div class="smallInverseThinTxt mt_20" style="opacity: 0.5">QKI</div>
     </div>
     <div class="hy">
       <div class="space-between">
@@ -52,26 +57,29 @@
         />
       </div>
     </div>
-    <!-- <div class="hr_v"></div> -->
-    <div class="flex_h_center">
-      <div class="flex_v_center_center flex1">
-        <div class="smallInverseTxt">凭证数量</div>
-        <div class="smallInverseTxt mt_50">{{ balance }}</div>
-      </div>
-      <div class="hr_h"></div>
-      <div class="flex_v_center flex1">
-        <div class="smallInverseTxt">存入数量(QKI)</div>
-        <div class="smallInverseTxt mt_50">{{ storeAmount }}</div>
-      </div>
+    <div class="flex_h_between flex1">
+      <div class="smallInverseTxt">凭证数量</div>
+      <div class="biggestInverseThinTxt">{{ balance }}</div>
     </div>
     <div class="hr_v"></div>
-    <div class="flex_h">
-      <div class="smallInverseTxt flex1">当前QKI价格</div>
-      <div class="flex1">
-        <span class="biggerInverseThinTxt">{{ price }} </span>
+    <div class="flex_h_between flex1">
+      <div class="smallInverseTxt">存入数量(QKI)</div>
+      <div class="biggestInverseThinTxt">{{ storeAmount }}</div>
+    </div>
+    <div class="hr_v"></div>
+    <div class="flex_h_between flex1">
+      <div class="smallInverseTxt">赚取总额(USDT)</div>
+      <div class="biggestInverseThinTxt">{{ withDrawAmount }}</div>
+    </div>
+    <div class="hr_v"></div>
+    <div class="flex_h_between">
+      <div class="smallInverseTxt">当前QKI价格</div>
+      <div>
+        <span class="biggestInverseThinTxt">{{ price }} </span>
         <span class="smallerInverseThinTxt">USDT</span>
       </div>
     </div>
+    <div class="hr_v"></div>
     <div class="fixed_bottom_placeholder"></div>
     <div class="fixed_bottom flex_v" v-if="balance != 0">
       <div class="flex_h_between">
@@ -160,7 +168,7 @@
             mode
           />
           <div class="align-center mt_50">
-            <div class="bigFontThinTxt">升级10U星际池</div>
+            <div class="bigFontThinTxt">升级100U星际池</div>
           </div>
           <div class="input-box space-between">
             <input
@@ -344,6 +352,10 @@ export default {
       balance: "0.00", // 当前星球的凭证数量
       amount: "",
       storeAmount: "0.00",
+      // withDrawAmount: "0.00", // 累计提现总额
+      depositUsdtValue: 0, // 累计存入usdt价值
+      withdrawtUsdtValue: 0, // 累计提现usdt价值
+      contractQkiBalance: 0, // 合约的qki总量
       totalSupply: "0.00", // 全网通证总量
       withDrawShow: false,
       bgShow: false,
@@ -354,8 +366,8 @@ export default {
       type: 1,
       decimals: 18, //精度
       poolList: [
-        { amount: 5, address: "0x972B09E9dA343c5E25B591900BA6A8Cb102b1D3F" },
-        { amount: 100, address: "0x800d79F842371f6D0CfDe06220A1a5014C852ed5" },
+        { amount: 5, address: "0x419a7356dC08Bf5a20d9f660DeE723ecb9345B72" },
+        { amount: 100, address: "0x164F31A5bfA746bcc55bd2279A400B645E99aaeB" },
       ],
       currPool: null,
       withdrawPrice: 0.0, // 提现价格
@@ -373,6 +385,19 @@ export default {
     this.init();
   },
   mixins: [h5Copy, initEth, Decimal],
+  computed: {
+    withDrawAmount: function() {
+      // 占比
+      const stake = Decimal.div(this.balance, this.totalSupply);
+      // 池内qki数量
+      const balanceQki = Decimal.mul(stake, this.contractQkiBalance);
+      // 池内qki数量usdt
+      let usdtPrice = Decimal.mul(balanceQki, this.price);
+      usdtPrice = Number(stake && stake.valueOf()||0).toFixed(6)
+      const withDrawAmountValue =  Decimal.add(Decimal.sub(usdtPrice, this.depositUsdtValue), this.withdrawtUsdtValue)
+      return withDrawAmountValue
+    },
+  },
   methods: {
     openTogglePool(keyName) {
       this.tempPool = this.currPool;
@@ -392,11 +417,15 @@ export default {
     goBack() {
       this.$router.go(-1);
     },
+    gotoRule() {
+      this.$router.push("superNode2Rule")
+    },
     // 初始化数据
     async init() {
       this.getTotalSupply();
       await this.getBalance();
-      this.getPrice();
+      await this.getPrice();
+      await this.getContractQkiBalance();
       if (this.balance !== 0) {
         this.geUsers();
         this.getWithdrawPrice();
@@ -422,15 +451,17 @@ export default {
       }
     },
     // 获取主网qki的余额
-    async getQkiBalance() {
+    async getContractQkiBalance() {
       let [error, balance] = await this.to(
-        this.provider.getBalance(this.myAddress)
+        this.provider.getBalance(this.contractAddress)
       );
       if (error == null) {
         let etherString = ethers.utils.formatEther(balance);
-        return parseFloat(etherString);
+        console.log('getQkiBalance======', etherString)
+        // return parseFloat(etherString);
+        this.contractQkiBalance = parseFloat(etherString);
       }
-      return 0.0;
+      // return 0.0;
     },
     // 得到凭证数量
     async getBalance() {
@@ -465,10 +496,20 @@ export default {
     async geUsers() {
       let [error, res] = await this.to(this.contract.users(this.myAddress));
       if (this.doResponse(error, res)) {
+        // 累计存入qki数量
         let hex = ethers.utils.hexValue(res[0]);
         let Value =
           this.hex2int(hex) / ethers.BigNumber.from(10).pow(this.decimals);
         this.storeAmount = Value;
+        // 获得累计存入usdt
+        let depositUsdt = ethers.utils.hexValue(res[2]);
+        let depositUsdtValue =
+          this.hex2int(depositUsdt) / ethers.BigNumber.from(10).pow(6);
+        this.depositUsdtValue = depositUsdtValue;
+        let withdrawtUsdt = ethers.utils.hexValue(res[3]);
+        let withdrawtUsdtValue =
+          this.hex2int(withdrawtUsdt) / ethers.BigNumber.from(10).pow(6);
+        this.withdrawtUsdtValue = withdrawtUsdtValue;
       }
     },
     // 获得当前价格
@@ -648,7 +689,7 @@ export default {
   $biggestFontSize: 46px;
   $hugeFontSize: 50px;
   $hugerFontSize: 80px;
-  $hugestFontSize: 76px;
+  $hugestFontSize: 60px;
   $inverse_color: #fff;
   $input_color: #ebebeb;
   $font_color: #333;
@@ -726,12 +767,13 @@ export default {
   .biggestInverseThinTxt {
     color: $inverse_color;
     font-size: $biggestFontSize;
-    font-weight: 200;
+    font-weight: 100;
+    opacity: 0.5;
   }
   .hugestInverseBoldTxt {
     color: $inverse_color;
     font-size: $hugestFontSize;
-    font-weight: 800;
+    font-weight: 900;
   }
   .mt_65 {
     margin-top: 65px;

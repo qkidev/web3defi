@@ -8,6 +8,7 @@ import Token from '@/pages/token/token';
 import Desc from '@/pages/desc/desc';
 import SuperNode from '@/pages/superNode/superNode';
 import SuperNode2 from '@/pages/superNode2/superNode';
+import SuperNode2Rule from '@/pages/superNode2/superNode2Rule';
 Vue.use(Router);
 
 export default new Router({
@@ -49,6 +50,11 @@ export default new Router({
     path: '/superNode2',
     name: 'superNode2',
     component: SuperNode2
+  },
+  {
+    path: '/superNode2Rule',
+    name: 'superNode2Rule',
+    component: SuperNode2Rule
   },
   
   ]
