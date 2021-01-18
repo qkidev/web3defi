@@ -366,7 +366,7 @@ export default {
       type: 1,
       decimals: 18, //精度
       poolList: [
-        { amount: 5, address: "0x972B09E9dA343c5E25B591900BA6A8Cb102b1D3F" },
+        { amount: 5, address: "0x419a7356dC08Bf5a20d9f660DeE723ecb9345B72" },
         { amount: 100, address: "0x164F31A5bfA746bcc55bd2279A400B645E99aaeB" },
       ],
       currPool: null,
