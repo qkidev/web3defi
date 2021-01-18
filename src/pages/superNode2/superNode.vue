@@ -388,14 +388,16 @@ export default {
   computed: {
     withDrawAmount: function() {
       // 占比
+      if(Number(this.balance) == 0){
+        return 0
+      }
       const stake = Decimal.div(this.balance, this.totalSupply);
       // 池内qki数量
       const balanceQki = Decimal.mul(stake, this.contractQkiBalance);
       // 池内qki数量usdt
       let usdtPrice = Decimal.mul(balanceQki, this.price);
-      usdtPrice = Number(stake && stake.valueOf()||0).toFixed(6)
       const withDrawAmountValue =  Decimal.add(Decimal.sub(usdtPrice, this.depositUsdtValue), this.withdrawtUsdtValue)
-      return withDrawAmountValue
+      return Number(withDrawAmountValue.valueOf()).toFixed(2) 
     },
   },
   methods: {
@@ -457,8 +459,7 @@ export default {
       );
       if (error == null) {
         let etherString = ethers.utils.formatEther(balance);
-        console.log('getQkiBalance======', etherString)
-        // return parseFloat(etherString);
+      
         this.contractQkiBalance = parseFloat(etherString);
       }
       // return 0.0;
@@ -504,11 +505,12 @@ export default {
         // 获得累计存入usdt
         let depositUsdt = ethers.utils.hexValue(res[2]);
         let depositUsdtValue =
-          this.hex2int(depositUsdt) / ethers.BigNumber.from(10).pow(6);
+          this.hex2int(depositUsdt) / ethers.BigNumber.from(10).pow(24);
         this.depositUsdtValue = depositUsdtValue;
+
         let withdrawtUsdt = ethers.utils.hexValue(res[3]);
         let withdrawtUsdtValue =
-          this.hex2int(withdrawtUsdt) / ethers.BigNumber.from(10).pow(6);
+          this.hex2int(withdrawtUsdt) / ethers.BigNumber.from(10).pow(24);
         this.withdrawtUsdtValue = withdrawtUsdtValue;
       }
     },
