@@ -367,7 +367,7 @@ export default {
       decimals: 18, //精度
       poolList: [
         { amount: 5, address: "0x972B09E9dA343c5E25B591900BA6A8Cb102b1D3F" },
-        { amount: 100, address: "0x800d79F842371f6D0CfDe06220A1a5014C852ed5" },
+        { amount: 100, address: "0x164F31A5bfA746bcc55bd2279A400B645E99aaeB" },
       ],
       currPool: null,
       withdrawPrice: 0.0, // 提现价格
