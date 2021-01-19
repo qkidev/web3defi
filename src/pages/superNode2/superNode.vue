@@ -538,7 +538,8 @@ export default {
         Toast("请输入您的存入的数量");
         return;
       }
-      let amount = ethers.FixedNumber.from(this.amount.toString()) * 10 ** 18;
+      let amount = ethers.utils.parseUnits(this.amount, this.decimals);
+      // console.l
       let response;
       if (type === "start" || type === "store") {
         let tx = {
