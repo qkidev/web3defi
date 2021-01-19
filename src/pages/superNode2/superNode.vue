@@ -6,26 +6,27 @@
       <div class="back_bg_placeholder"></div>
     </div> -->
     <div class="head flex_v_center">
-    
-      <div class="flex_h_between" style="width: 100%;margin-top: 5px; margin-bottom: 5px">
+      <div class="flex_h_between head_img_wrap">
         <div class="flex_v">
-        <img
-        :src="require('../../assets/superNode2/logo1.png')"
-        alt=""
-        class="logo1"
-      />
-      <img
-        :src="require('../../assets/superNode2/logo2.png')"
-        alt=""
-        class="logo2"
-      />
-      </div>
-        <div class="rule_bg flex_h_center_center normalInverseBoldTxt" @click="gotoRule">
+          <img
+            :src="require('../../assets/superNode2/logo1.png')"
+            alt=""
+            class="logo1"
+          />
+          <img
+            :src="require('../../assets/superNode2/logo2.png')"
+            alt=""
+            class="logo2"
+          />
+        </div>
+        <div
+          class="rule_bg flex_h_center_center normalInverseBoldTxt"
+          @click="gotoRule"
+        >
           规则
         </div>
       </div>
-      
-      
+
       <div
         class="pool_bg flex_h_center_center mt_50 hugestInverseBoldTxt"
         @click="openTogglePool('togglePoolShow')"
@@ -43,12 +44,22 @@
         >
       </div>
       <div class="smallInverseTxt mt_50">当前合约地址内余额</div>
-      <div class="biggestInverseThinTxt mt_20">{{ totalSupply }}</div>
-      <div class="smallInverseThinTxt mt_20" style="opacity: 0.5">QKI</div>
+      <div class="biggestInverseThinTxt mt_20">
+        {{ totalSupply }}
+        <span class="smallInverseThinTxt" style="opacity: 0.5">QKI</span>
+      </div>
+      <div class="price_wrap mt_20 smallInverseTxt">
+        当前星球锁仓价值 {{ totalPrice }} USDT
+      </div>
     </div>
     <div class="hy">
       <div class="space-between">
-        <div class="smallestInverseTxt ellipsis">{{ contractAddress }}</div>
+        <div
+          class="smallestInverseTxt ellipsis"
+          style="text-transform: uppercase"
+        >
+          {{ contractAddress }}
+        </div>
         <img
           src="../../assets/superNode2/copy.png"
           class="copy"
@@ -57,22 +68,22 @@
         />
       </div>
     </div>
-    <div class="flex_h_between flex1">
+    <div class="flex_h_between flex1 padd_60">
       <div class="smallInverseTxt">凭证数量</div>
       <div class="biggestInverseThinTxt">{{ balance }}</div>
     </div>
     <div class="hr_v"></div>
-    <div class="flex_h_between flex1">
+    <div class="flex_h_between flex1 padd_60">
       <div class="smallInverseTxt">存入数量(QKI)</div>
       <div class="biggestInverseThinTxt">{{ storeAmount }}</div>
     </div>
     <div class="hr_v"></div>
-    <div class="flex_h_between flex1">
+    <div class="flex_h_between flex1 padd_60">
       <div class="smallInverseTxt">赚取总额(USDT)</div>
       <div class="biggestInverseThinTxt">{{ withDrawAmount }}</div>
     </div>
     <div class="hr_v"></div>
-    <div class="flex_h_between">
+    <div class="flex_h_between padd_60">
       <div class="smallInverseTxt">当前QKI价格</div>
       <div>
         <span class="biggestInverseThinTxt">{{ price }} </span>
@@ -106,7 +117,9 @@
             alt=""
             class="upgrade_btn"
           />
-          <span class="smallestInverseTxt">升级到10U星球池</span>
+          <span class="smallestInverseTxt"
+            >升级到{{ nextPoolAmount }}U星球池</span
+          >
         </div>
       </div>
     </div>
@@ -168,7 +181,7 @@
             mode
           />
           <div class="align-center mt_50">
-            <div class="bigFontThinTxt">升级100U星际池</div>
+            <div class="bigFontThinTxt">升级{{ nextPoolAmount }}U星际池</div>
           </div>
           <div class="input-box space-between">
             <input
@@ -367,6 +380,7 @@ export default {
       decimals: 18, //精度
       poolList: [
         { amount: 5, address: "0x419a7356dC08Bf5a20d9f660DeE723ecb9345B72" },
+        { amount: 10, address: "0x134e0600B1ec8924e7B5eC7D51568093e0Bbf8cb" },
         { amount: 100, address: "0x164F31A5bfA746bcc55bd2279A400B645E99aaeB" },
       ],
       currPool: null,
@@ -386,18 +400,42 @@ export default {
   },
   mixins: [h5Copy, initEth, Decimal],
   computed: {
-    withDrawAmount: function() {
+    withDrawAmount: function () {
       // 占比
-      if(Number(this.balance) == 0){
-        return 0
+      if (Number(this.balance) == 0) {
+        return 0;
       }
       const stake = Decimal.div(this.balance, this.totalSupply);
       // 池内qki数量
       const balanceQki = Decimal.mul(stake, this.contractQkiBalance);
       // 池内qki数量usdt
       let usdtPrice = Decimal.mul(balanceQki, this.price);
-      const withDrawAmountValue =  Decimal.add(Decimal.sub(usdtPrice, this.depositUsdtValue), this.withdrawtUsdtValue)
-      return Number(withDrawAmountValue.valueOf()).toFixed(2) 
+      const withDrawAmountValue = Decimal.add(
+        Decimal.sub(usdtPrice, this.depositUsdtValue),
+        this.withdrawtUsdtValue
+      );
+      return Number(withDrawAmountValue.valueOf()).toFixed(2);
+    },
+    nextPoolAmount: function () {
+      let amount = 0;
+      const len = this.poolList.length;
+      for (let i = 0; i < len; i++) {
+        if (
+          this.poolList[i].address.toLowerCase() ==
+          this.currPool.address.toLowerCase()
+        ) {
+          if (i + 1 < len) {
+            amount = this.poolList[i + 1].amount;
+            break;
+          }
+        }
+      }
+      return amount;
+    },
+    totalPrice: function () {
+      // 池内qki数量
+      const totalPrice = Decimal.mul(this.price, this.contractQkiBalance);
+      return Number((totalPrice && totalPrice.valueOf()) || 0).toFixed(2);
     },
   },
   methods: {
@@ -420,7 +458,7 @@ export default {
       this.$router.go(-1);
     },
     gotoRule() {
-      this.$router.push("superNode2Rule")
+      this.$router.push("superNode2Rule");
     },
     // 初始化数据
     async init() {
@@ -459,7 +497,7 @@ export default {
       );
       if (error == null) {
         let etherString = ethers.utils.formatEther(balance);
-      
+
         this.contractQkiBalance = parseFloat(etherString);
       }
       // return 0.0;
@@ -525,10 +563,12 @@ export default {
       let [error, res] = await this.to(this.contract.decimals());
       this.doResponse(error, res, "decimals");
     },
+
     // 切换星球
     async togglePool() {
       this.currPool = this.tempPool;
-      this.togglePoolShow = false;
+
+      this.next_pool_amount = this.togglePoolShow = false;
       this.getContract(this.currPool.address);
       this.init();
     },
@@ -539,7 +579,6 @@ export default {
         return;
       }
       let amount = ethers.utils.parseEther(this.amount.toString());
-      // console.l
       let response;
       if (type === "start" || type === "store") {
         let tx = {
@@ -559,7 +598,18 @@ export default {
         });
         response = await this.to(this.signer.sendTransaction(tx));
       } else if (type === "upgrade") {
-        response = await this.to(this.contract.upgrade(amount));
+        const gasLimit = await this.getEstimateGas(() =>
+          this.contract.estimateGas.upgrade(amount)
+        );
+        if (gasLimit === 0) {
+          return;
+        }
+        response = await this.to(
+          this.contract.upgrade(amount, {
+            gasLimit,
+            gasPrice: ethers.utils.parseUnits("2", "gwei"),
+          })
+        );
       } else if (type === "withdraw") {
         const gasLimit = await this.getEstimateGas(() =>
           this.contract.estimateGas.withdraw(amount)
@@ -708,9 +758,19 @@ export default {
 
   background: linear-gradient(90deg, #262455 0%, #232150 100%);
   min-height: 100vh;
-  padding-left: 60px;
-  padding-right: 60px;
+
   box-sizing: border-box;
+  .padd_60 {
+    margin-left: 60px;
+    margin-right: 60px;
+  }
+  .head_img_wrap {
+    width: calc(100% - 120px);
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding-left: 60px;
+    padding-right: 60px;
+  }
 
   .smallestInverseTxt {
     color: $inverse_color;
@@ -770,8 +830,8 @@ export default {
   .biggestInverseThinTxt {
     color: $inverse_color;
     font-size: $biggestFontSize;
-    font-weight: 100;
-    opacity: 0.5;
+    font-weight: 200;
+    opacity: 0.7;
   }
   .hugestInverseBoldTxt {
     color: $inverse_color;
@@ -874,13 +934,17 @@ export default {
     border-bottom: 2px solid rgba(235, 233, 237, 0.4);
     padding-bottom: 25px;
     margin-bottom: 50px;
+    margin-left: 60px;
+    margin-right: 60px;
   }
   .hr_v {
     height: 2px;
-    width: 100%;
+    width: calc(100% - 120px);
     background: rgba(235, 233, 237, 0.4);
     margin-top: 50px;
     margin-bottom: 50px;
+    margin-left: 60px;
+    margin-right: 60px;
   }
   .hr_h {
     height: 90px;
@@ -1041,6 +1105,14 @@ export default {
       border: none;
       background-color: transparent;
     }
+  }
+  .price_wrap {
+    background-color: rgba(114, 237, 252, 0.5);
+    margin-left: -60px;
+    margin-right: -60px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    width: 100%;
   }
 }
 </style>
