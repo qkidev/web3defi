@@ -83,6 +83,11 @@
       <div class="biggestInverseThinTxt">{{ withDrawAmount }}</div>
     </div>
     <div class="hr_v"></div>
+    <div class="flex_h_between flex1 padd_60">
+      <div class="smallInverseTxt">赚取QKI总额</div>
+      <div class="biggestInverseThinTxt">{{ earnQkiTotal }}</div>
+    </div>
+    <div class="hr_v"></div>
     <div class="flex_h_between padd_60">
       <div class="smallInverseTxt">当前QKI价格</div>
       <div>
@@ -102,7 +107,7 @@
         </div>
         <div
           class="store_btn flex_h_center_center smallerInverseTxt"
-          @click="storeShow = true"
+          @click="openStoreModel"
         >
           立即存入
         </div>
@@ -388,6 +393,7 @@ export default {
       price: "0.00", //
       next_pool: ethers.constants.AddressZero, // 下一个星球池地址
       tempPool: null,
+      earnQkiTotal: 0.0
     };
   },
   async created() {
@@ -440,6 +446,12 @@ export default {
   },
   methods: {
     openTogglePool(keyName) {
+      if(keyName === "startPoolShow") {
+        if(Number(this.price) >= Number(this.withdrawPrice)) {
+          Toast('当前QKI价格高于可提现价格，不能进行存入操作，你可以切换到更高级的星球池进行操作');
+          return;
+        }
+      }
       this.tempPool = this.currPool;
       this[keyName] = true;
     },
@@ -454,6 +466,13 @@ export default {
       }
       this[keyName] = true;
     },
+    openStoreModel(){
+      if(Number(this.price) >= Number(this.withdrawPrice)) {
+        Toast('当前QKI价格高于可提现价格，不能进行存入操作');
+        return;
+      }
+      this.storeShow = true
+    },
     goBack() {
       this.$router.go(-1);
     },
@@ -466,9 +485,10 @@ export default {
       await this.getBalance();
       await this.getPrice();
       await this.getContractQkiBalance();
+      await this.getWithdrawPrice();
       if (this.balance !== 0) {
         this.geUsers();
-        this.getWithdrawPrice();
+        
         this.getNextPoolAddress();
       }
     },
@@ -540,6 +560,13 @@ export default {
         let Value =
           this.hex2int(hex) / ethers.BigNumber.from(10).pow(this.decimals);
         this.storeAmount = Value;
+        // 累计提现的qki数量
+        let withDrawhex = ethers.utils.hexValue(res[1]);
+        let  withDrawValue =
+          this.hex2int(withDrawhex) / ethers.BigNumber.from(10).pow(this.decimals);
+        // 赚取qki总额
+        console.log(this.balance, Value, withDrawValue)
+        this.earnQkiTotal = Decimal.add(Decimal.sub(this.balance, Value), withDrawValue) 
         // 获得累计存入usdt
         let depositUsdt = ethers.utils.hexValue(res[2]);
         let depositUsdtValue =
@@ -657,6 +684,7 @@ export default {
     },
     // 存入
     async store() {
+      
       this.dealOrder("store", "storeShow");
     },
     // 提现
