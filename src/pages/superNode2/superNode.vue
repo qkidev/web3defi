@@ -398,10 +398,10 @@ export default {
     };
   },
   async created() {
-    // 第一次进入默认5u星球池
-    this.getContract(this.poolList[0].address);
-    this.currPool = this.poolList[0];
-    this.tempPool = this.poolList[0];
+    // 第一次进入默认10u星球池
+    this.getContract(this.poolList[1].address);
+    this.currPool = this.poolList[1];
+    this.tempPool = this.poolList[1];
     await this.getDecimals();
     this.init();
   },
