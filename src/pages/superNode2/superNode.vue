@@ -393,7 +393,8 @@ export default {
       price: "0.00", //
       next_pool: ethers.constants.AddressZero, // 下一个星球池地址
       tempPool: null,
-      earnQkiTotal: 0.0
+      // earnQkiTotal: 0.0,
+      withDrawValue: 0
     };
   },
   async created() {
@@ -421,6 +422,18 @@ export default {
         this.withdrawtUsdtValue
       );
       return Number(withDrawAmountValue.valueOf()).toFixed(2);
+    },
+    earnQkiTotal: function() {
+      // 占比
+      if (Number(this.balance) == 0) {
+        return 0;
+      }
+      const stake = Decimal.div(this.balance, this.totalSupply);
+      // 池内qki数量
+      const balanceQki = Decimal.mul(stake, this.contractQkiBalance);
+      // qki赚取的数量
+      const earnQkiTotal = Decimal.add(Decimal.sub(balanceQki, this.storeAmount), this.withDrawValue)
+      return Number(earnQkiTotal.valueOf()).toFixed(this.decimals)
     },
     nextPoolAmount: function () {
       let amount = 0;
@@ -564,9 +577,8 @@ export default {
         let withDrawhex = ethers.utils.hexValue(res[1]);
         let  withDrawValue =
           this.hex2int(withDrawhex) / ethers.BigNumber.from(10).pow(this.decimals);
-        // 赚取qki总额
-        console.log(this.balance, Value, withDrawValue)
-        this.earnQkiTotal = Decimal.add(Decimal.sub(this.balance, Value), withDrawValue) 
+        // 赚取qki总
+        this.withDrawValue = withDrawValue
         // 获得累计存入usdt
         let depositUsdt = ethers.utils.hexValue(res[2]);
         let depositUsdtValue =
