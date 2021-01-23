@@ -45,7 +45,7 @@
       </div>
       <div class="smallInverseTxt mt_50">当前合约地址内余额</div>
       <div class="biggestInverseThinTxt mt_20">
-        {{ totalSupply }}
+        {{ contractQkiBalance }}
         <span class="smallInverseThinTxt" style="opacity: 0.5">QKI</span>
       </div>
       <div class="price_wrap mt_20 smallInverseTxt">
