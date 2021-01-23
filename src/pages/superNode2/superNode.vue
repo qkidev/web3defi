@@ -433,7 +433,7 @@ export default {
       const balanceQki = Decimal.mul(stake, this.contractQkiBalance);
       // qki赚取的数量
       const earnQkiTotal = Decimal.add(Decimal.sub(balanceQki, this.storeAmount), this.withDrawValue)
-      return Number(earnQkiTotal.valueOf()).toFixed(this.decimals)
+      return Number(earnQkiTotal.valueOf()).toFixed(this.decimals).toFixed(8);
     },
     nextPoolAmount: function () {
       let amount = 0;
