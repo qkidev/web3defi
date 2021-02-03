@@ -45,7 +45,7 @@
       </div>
       <div class="smallInverseTxt mt_50">当前合约地址内余额</div>
       <div class="biggestInverseThinTxt mt_20">
-        {{ totalSupply }}
+        {{ contractQkiBalance }}
         <span class="smallInverseThinTxt" style="opacity: 0.5">QKI</span>
       </div>
       <div class="price_wrap mt_20 smallInverseTxt">
@@ -398,10 +398,10 @@ export default {
     };
   },
   async created() {
-    // 第一次进入默认5u星球池
-    this.getContract(this.poolList[0].address);
-    this.currPool = this.poolList[0];
-    this.tempPool = this.poolList[0];
+    // 第一次进入默认10u星球池
+    this.getContract(this.poolList[1].address);
+    this.currPool = this.poolList[1];
+    this.tempPool = this.poolList[1];
     await this.getDecimals();
     this.init();
   },
@@ -433,7 +433,7 @@ export default {
       const balanceQki = Decimal.mul(stake, this.contractQkiBalance);
       // qki赚取的数量
       const earnQkiTotal = Decimal.add(Decimal.sub(balanceQki, this.storeAmount), this.withDrawValue)
-      return Number(earnQkiTotal.valueOf()).toFixed(this.decimals)
+      return Number(earnQkiTotal.valueOf()).toFixed(8);
     },
     nextPoolAmount: function () {
       let amount = 0;
