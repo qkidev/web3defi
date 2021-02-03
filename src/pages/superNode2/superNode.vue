@@ -161,7 +161,7 @@
             />
             <div class="align-center">
               <div class="line"></div>
-              <div class="smallestBlackTxt">QKI</div>
+              <div class="smallestBlackTxt" @click="inputAll">全部</div>
             </div>
           </div>
           <div
@@ -750,6 +750,9 @@ export default {
     inputAll() {
       this.amount = this.balance;
     },
+    // inputAllWithDrawn() {
+      // this.amount = 
+    // },
     // 获得gas
     async getEstimateGas(fn) {
       const [err, res] = await this.to(fn());
