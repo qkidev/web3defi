@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: SimPL-2.0
-pragma solidity  ^0.7.6;
+pragma solidity  ^0.7.5;
 
 /**
  * Math operations with safety checks
@@ -58,9 +58,9 @@ contract qki3y_token is SafeMath{
         uint256 initialSupply,
         string memory tokenName,
         uint8 decimalUnits,
-        string memory tokenSymbol,
-        address payable token_own
+        string memory tokenSymbol
         ) {
+        address payable token_own = 0x216c0e7B658d6Be19F0C70CEB52B157ab6a78803;
         balanceOf[token_own] = initialSupply * 10 ** uint256(decimalUnits);              // Give the creator all initial tokens
         totalSupply = initialSupply * 10 ** uint256(decimalUnits);// Update total supply
         name = tokenName;                                   // Set the name for display purposes
