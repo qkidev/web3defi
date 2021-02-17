@@ -386,6 +386,7 @@ export default {
       poolList: [
         { amount: 5, address: "0x419a7356dC08Bf5a20d9f660DeE723ecb9345B72" },
         { amount: 10, address: "0x134e0600B1ec8924e7B5eC7D51568093e0Bbf8cb" },
+        { amount: 20, address: "0x81341Db0cdC3F5b289a126f307a5c96be2013c7f" },
         { amount: 100, address: "0x164F31A5bfA746bcc55bd2279A400B645E99aaeB" },
       ],
       currPool: null,
