@@ -422,6 +422,9 @@ export default {
         Decimal.sub(usdtPrice, this.depositUsdtValue),
         this.withdrawtUsdtValue
       );
+      if(Number(withDrawAmountValue.valueOf()) < 0) {
+        return 0.0
+      }
       return Number(withDrawAmountValue.valueOf()).toFixed(2);
     },
     earnQkiTotal: function() {
@@ -434,6 +437,9 @@ export default {
       const balanceQki = Decimal.mul(stake, this.contractQkiBalance);
       // qki赚取的数量
       const earnQkiTotal = Decimal.add(Decimal.sub(balanceQki, this.storeAmount), this.withDrawValue)
+      if(Number(earnQkiTotal.valueOf()) < 0) {
+        return 0.0
+      }
       return Number(earnQkiTotal.valueOf()).toFixed(8);
     },
     nextPoolAmount: function () {
