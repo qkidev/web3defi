@@ -6,8 +6,15 @@
       <div class="back_bg_placeholder"></div>
     </div> -->
     <div class="head flex_v_center">
-      <div class="flex_h_between head_img_wrap">
+      <div class="flex_h_between head_img_wrap" style="align-items: flex-start">
+         <div
+          class="rule_bg flex_h_center_center normalInverseBoldTxt"
+          @click="rewardShow = true"
+        >
+          分红
+        </div>
         <div class="flex_v">
+          <div style="height: 40px; width: 10px;"></div>
           <img
             :src="require('../../assets/superNode2/logo1.png')"
             alt=""
@@ -352,6 +359,57 @@
         </div>
       </div>
     </div>
+    <!-- 分红弹框 -->
+    <div class="bg" v-show="rewardShow">
+      <div class="flex-box">
+        <div class="box1 flex_v_center">
+          <img
+            src="../../assets/superNode2/reward_pool_bg.png"
+            class="pool_model_bg"
+            mode
+          />
+          <div class="align-center mt_50">
+            <div class="bigFontThinTxt">合约待分红总量</div>
+          </div>
+          <div class="align-center mt_30">
+            <div class="biggestRedTxt">{{rewardTotalAmount}}</div>
+          </div>
+          <div class="align-center mt_15">
+            <div class="bigFontThinTxt" style="color: $494949">QKI</div>
+          </div>
+          <div class="align-center mt_50">
+            <div class="smaller494949Txt">上次分红时间</div>
+          </div>
+          <div class="align-center">
+            <div class="smallGrey2Txt">{{prevTime}}</div>
+          </div>
+          <div class="align-center mt_50">
+            <div class="smaller494949Txt">下次分红时间</div>
+          </div>
+          <div class="align-center">
+            <div class="smallGrey2Txt">{{nextTime}}</div>
+          </div>
+     
+          <div
+            class="submit_btn flex_h_center_center middleInverseTxt" style="margin-top: 50px;"
+            @click="getAward"
+            v-if="canReward"
+          >
+            领取分红
+          </div>
+          <div
+            class="submit_btn flex_h_center_center middleInverseTxt" style="margin-top: 50px;background: #d1d1d1"
+            @click="getNoAward"
+            v-else
+          >
+            领取分红
+          </div>
+          <div class="smallGrey2Txt" @click="rewardShow = false">
+            取消
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -359,7 +417,7 @@
 // import h5Copy from '../js_sdk/junyi-h5-copy/junyi-h5-copy/junyi-h5-copy.js'
 import { h5Copy, initEth, Decimal } from "@/utils/utils";
 import { ethers } from "ethers";
-import { abi } from "./abi";
+import { abi, rewardAbi } from "./abi";
 import { Toast } from "vant";
 export default {
   data() {
@@ -395,7 +453,17 @@ export default {
       next_pool: ethers.constants.AddressZero, // 下一个星球池地址
       tempPool: null,
       // earnQkiTotal: 0.0,
-      withDrawValue: 0
+      withDrawValue: 0,
+      rewardContractAddress: '0x3805D1864e21A883F8f701Ce6f24C609fe0Acd53',
+      rewardContract: null,
+      rewardBalance: 0,
+      rewardShow: false,
+      rewardTotalAmount: 0, // 分红总量
+      prevTimeTimeStamp: '', // 上次分红时间
+      prevTime: '',
+      rewardInterval: 0,
+      nextTime: '', // 下次分红时间
+      canReward: false,
     };
   },
   async created() {
@@ -420,12 +488,17 @@ export default {
       let usdtPrice = Decimal.mul(balanceQki, this.price);
       const withDrawAmountValue = Decimal.add(
         Decimal.sub(usdtPrice, this.depositUsdtValue),
-        this.withdrawtUsdtValue
+        this.withdrawtUsdtValue == undefined ? '0' :this.withdrawtUsdtValue
       );
-      if(Number(withDrawAmountValue.valueOf()) < 0) {
+      
+      if(withDrawAmountValue == undefined) {
         return 0.0
-      }
+      } else if(Number(withDrawAmountValue.valueOf()) < 0) {
+        return 0.0
+      } 
       return Number(withDrawAmountValue.valueOf()).toFixed(2);
+      
+      
     },
     earnQkiTotal: function() {
       // 占比
@@ -463,6 +536,21 @@ export default {
       const totalPrice = Decimal.mul(this.price, this.contractQkiBalance);
       return Number((totalPrice && totalPrice.valueOf()) || 0).toFixed(2);
     },
+  },
+  watch: {
+    rewardInterval(value) {
+      let nextTime = this.prevTimeTimeStamp + value;
+      this.nextTime = this.timestampToTime(nextTime);
+      this.prevTime = this.timestampToTime(this.prevTimeTimeStamp);
+          let nowTimeStr = Date.now()
+        .toString()
+        .substring(0, 10);
+      if((Number(nowTimeStr) - Number(nextTime)) > 0){
+        this.canReward = true;
+      } else {
+        this.canReward = false;
+      }
+    }
   },
   methods: {
     openTogglePool(keyName) {
@@ -508,9 +596,9 @@ export default {
       await this.getWithdrawPrice();
       if (this.balance !== 0) {
         this.geUsers();
-        
         this.getNextPoolAddress();
       }
+      await this.getRewardInit();
     },
     // 初始化合约
     getContract(address) {
@@ -520,7 +608,9 @@ export default {
         abi,
         this.signer
       );
+      var rewardContract = new ethers.Contract(this.rewardContractAddress, rewardAbi, this.signer);
       this.contract = contract;
+      this.rewardContract = rewardContract;
     },
     async getAddress() {
       let [error, address] = await this.to(this.signer.getAddress());
@@ -633,7 +723,7 @@ export default {
           value: amount,
         };
         const gasLimit = await this.getEstimateGas(() =>
-          this.signer.estimateGas(tx)
+          this.signer.estimateGas(tx, {gasPrice: ethers.utils.parseUnits("2", "gwei")})
         );
         if (gasLimit === 0) {
           return;
@@ -645,7 +735,7 @@ export default {
         response = await this.to(this.signer.sendTransaction(tx));
       } else if (type === "upgrade") {
         const gasLimit = await this.getEstimateGas(() =>
-          this.contract.estimateGas.upgrade(amount)
+          this.contract.estimateGas.upgrade(amount, {gasPrice: ethers.utils.parseUnits("2", "gwei")})
         );
         if (gasLimit === 0) {
           return;
@@ -658,7 +748,7 @@ export default {
         );
       } else if (type === "withdraw") {
         const gasLimit = await this.getEstimateGas(() =>
-          this.contract.estimateGas.withdraw(amount)
+          this.contract.estimateGas.withdraw(amount,{gasPrice: ethers.utils.parseUnits("2", "gwei")})
         );
         if (gasLimit === 0) {
           return;
@@ -709,6 +799,52 @@ export default {
     // 提现
     async withDraw() {
       this.dealOrder("withdraw", "withDrawShow");
+    },
+
+    // 得到分红初始化数据的数量
+    async getRewardInit() {
+      let [error, balance] = await this.to(
+        this.provider.getBalance(this.rewardContractAddress)
+      );
+      if (error == null) {
+        let etherString = ethers.utils.formatEther(balance);
+
+        this.rewardTotalAmount = parseFloat(etherString);
+      }
+      let [err1, lTime] = await this.to(
+        this.rewardContract.last_time()
+      );
+      this.doResponse(err1, lTime, 'prevTimeTimeStamp');
+      let [err2, intervals] = await this.to(
+        this.rewardContract.Intervals()
+      );
+      this.doResponse(err2, intervals, 'rewardInterval');
+    },
+
+    // 领取分红
+    async getAward() {
+      const gasLimit = await this.getEstimateGas(() =>
+          this.rewardContract.estimateGas.reward({gasPrice: ethers.utils.parseUnits("2", "gwei"),})
+        );
+        if (gasLimit === 0) {
+          return;
+        }
+      let [err1, res] = await this.to(
+        this.rewardContract.reward({
+          gasLimit,
+          gasPrice: ethers.utils.parseUnits("2", "gwei"),
+        })
+      );
+      if(err1 == null){
+         Toast("领取成功");
+         await this.queryTransation(res.hash, () => {
+          this.getRewardInit();
+        });
+         this.rewardShow = false;
+      }
+    },
+    getNoAward() {
+      Toast('当前还不可以领取分红哦');
     },
     // 十六进制转10进制
     hex2int(hex) {
@@ -844,6 +980,11 @@ export default {
     color: $inverse_color;
     font-size: $smallerFontSize;
   }
+  .smaller494949Txt{
+    color: #494949;
+    font-size: $smallerFontSize;
+    font-weight: 400;
+  }
   .smallInverseTxt {
     color: $inverse_color;
     font-size: $smallFontSize;
@@ -867,6 +1008,7 @@ export default {
     color: $font_color;
     font-size: $bigFontSize;
     font-weight: 300;
+    font-family: PingFang SC;
   }
   .middleInverseTxt {
     color: $inverse_color;
@@ -882,6 +1024,11 @@ export default {
     font-size: $biggestFontSize;
     font-weight: 200;
     opacity: 0.7;
+  }
+  .biggestRedTxt {
+    color: #F31C7B;
+    font-size: $biggestFontSize;
+    font-weight: normal;
   }
   .hugestInverseBoldTxt {
     color: $inverse_color;

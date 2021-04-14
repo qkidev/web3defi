@@ -1049,7 +1049,28 @@ const abiPro=[
 		"type": "receive"
 	}
 ];
+
+const rewardAbi = [{"type":"constructor","stateMutability":"nonpayable","inputs":[]},{"type":"function","stateMutability":"view","outputs":[{"type":"uint256","name":"","internalType":"uint256"}],"name":"Intervals","inputs":[]},{"type":"function","stateMutability":"view","outputs":[{"type":"uint256","name":"","internalType":"uint256"}],"name":"last_time","inputs":[]},{"type":"function","stateMutability":"view","outputs":[{"type":"uint256","name":"","internalType":"uint256"}],"name":"max_reward","inputs":[]},{"type":"function","stateMutability":"view","outputs":[{"type":"address","name":"","internalType":"address payable"}],"name":"owner","inputs":[]},{"type":"function","stateMutability":"nonpayable","outputs":[],"name":"reward","inputs":[]},{"type":"function","stateMutability":"view","outputs":[{"type":"address","name":"","internalType":"address payable"}],"name":"reward_address","inputs":[]},{"type":"function","stateMutability":"view","outputs":[{"type":"uint256","name":"","internalType":"uint256"}],"name":"reward_times","inputs":[]},{"type":"function","stateMutability":"nonpayable","outputs":[],"name":"setIntervals","inputs":[{"type":"uint256","name":"new_Intervals","internalType":"uint256"}]},{"type":"function","stateMutability":"nonpayable","outputs":[],"name":"setOwner","inputs":[{"type":"address","name":"new_owner","internalType":"address payable"}]},{"type":"function","stateMutability":"nonpayable","outputs":[],"name":"set_new_reward","inputs":[{"type":"address","name":"new_reward","internalType":"address payable"}]},{"type":"function","stateMutability":"nonpayable","outputs":[],"name":"setmax_reward","inputs":[{"type":"uint256","name":"new_max_reward","internalType":"uint256"}]},{"type":"function","stateMutability":"nonpayable","outputs":[],"name":"setreward_times","inputs":[{"type":"uint256","name":"new_reward_times","internalType":"uint256"}]},{"type":"receive","stateMutability":"payable"},{
+	"inputs": [
+		{
+			"internalType": "address",
+			"name": "",
+			"type": "address"
+		}
+	],
+	"name": "balanceOf",
+	"outputs": [
+		{
+			"internalType": "uint256",
+			"name": "",
+			"type": "uint256"
+		}
+	],
+	"stateMutability": "view",
+	"type": "function"
+},]
 export {
 	abi,
-	abiPro
+	abiPro,
+	rewardAbi
 }
