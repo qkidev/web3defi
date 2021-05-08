@@ -59,7 +59,7 @@ export default {
       signer: null,
       form: {
         signature: "",
-        signingAddress: "22",
+        signingAddress: "",
         message: "",
       },
     };
