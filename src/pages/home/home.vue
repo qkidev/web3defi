@@ -101,6 +101,12 @@ export default {
           title: "超级节点2.0",
           desc: "基于合约部署的超级节点管理工具",
           routeName: 'superNode2'
+        },
+        {
+          icon: require("../../assets/temp/4.jpg"),
+          title: "pizza空投",
+          desc: "持有qki3y用户可以免费领取1万pi空投",
+          routeName: 'pizzaAirdrop'
         }
       ];
     },

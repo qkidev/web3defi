@@ -10,6 +10,8 @@ import SuperNode from '@/pages/superNode/superNode';
 import SuperNode2 from '@/pages/superNode2/superNode';
 import SuperNode2Rule from '@/pages/superNode2/superNode2Rule';
 import Signature from '@/pages/signature';
+import PizzaAirdrop from '@/pages/pizzaAirdrop/pizzaAirdrop';
+
 Vue.use(Router);
 
 export default new Router({
@@ -62,6 +64,12 @@ export default new Router({
     name: 'signature',
     component: Signature
   },
+  {
+    path: '/pizzaAirdrop',
+    name: 'pizzaAirdrop',
+    component: PizzaAirdrop
+  },
+  
   
   ]
 })

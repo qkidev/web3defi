@@ -95,6 +95,49 @@ const initEth = {
         console.log(error)
       }
     },
+    // 十六进制转10进制
+    hex2int(hex) {
+      if (hex.indexOf("0x") >= 0) {
+        hex = hex.substring("2");
+      }
+      var len = hex.length,
+        a = new Array(len),
+        code;
+      for (var i = 0; i < len; i++) {
+        code = hex.charCodeAt(i);
+        if (48 <= code && code < 58) {
+          code -= 48;
+        } else {
+          code = (code & 0xdf) - 65 + 10;
+        }
+        a[i] = code;
+      }
+      return a.reduce(function (acc, c) {
+        acc = 16 * acc + c;
+        return acc;
+      }, 0);
+    },
+    // response公共处理方法
+    doResponse(error, res, keyName, Decimal = 0) {
+      if (error == null) {
+        if (keyName) {
+          let hex = ethers.utils.hexValue(res);
+          let Value =
+            this.hex2int(hex) / ethers.BigNumber.from(10).pow(Decimal);
+          this[keyName] = Value;
+        }
+        return true;
+      } else {
+        if (error.code == "INSUFFICIENT_FUNDS") {
+          Toast("矿工费不足");
+        } else if (error.code == 4001) {
+          Toast("用户取消");
+        } else {
+          Toast("错误代码:" + error.code);
+        }
+        return false;
+      }
+    },
     // 查询Transaction,完成后回调
     async queryTransation (hash, fnCallback) {
       await this.provider.waitForTransaction(hash).then(async receipt => {
