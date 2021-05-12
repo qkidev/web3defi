@@ -107,11 +107,21 @@ export default {
           title: "pizza空投",
           desc: "持有qki3y用户可以免费领取1万pi空投",
           routeName: 'pizzaAirdrop'
+        },
+        {
+          icon: require("../../assets/temp/6.png"),
+          title: "签名&验证信息",
+          desc: "轻松验证/签名任何信息",
+          routeName: 'signature'
         }
       ];
     },
     goto(routeName){
-      this.$router.push(routeName);
+      if(routeName === 'signature'){
+        this.goHref('https://app.web3defi.io/#/signature');
+      } else {
+        this.$router.push(routeName);
+      }
     },
     goHref(url){
       window.location.href = url;
@@ -217,4 +227,9 @@ export default {
   width: 80px;
   height: 63px;
 }
+.recomment_list_item .signature_dapp_icon{
+  width: 80px;
+  height: 86px;
+}
+
 </style>
