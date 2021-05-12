@@ -103,7 +103,7 @@ export default {
           routeName: 'superNode2'
         },
         {
-          icon: require("../../assets/temp/4.jpg"),
+          icon: require("../../assets/temp/5.png"),
           title: "pizza空投",
           desc: "持有qki3y用户可以免费领取1万pi空投",
           routeName: 'pizzaAirdrop'
@@ -212,5 +212,9 @@ export default {
 .recomment_list_item .superNode_dapp_icon{
   width: 80px;
   height: 86px;
+}
+.recomment_list_item .pizzaAirdrop_dapp_icon{
+  width: 80px;
+  height: 63px;
 }
 </style>
