@@ -123,11 +123,7 @@ export default {
       ];
     },
     goto(routeName){
-      if(routeName === 'signature'){
-        this.goHref('https://app.web3defi.io/#/signature');
-      } else {
-        this.$router.push(routeName);
-      }
+      this.$router.push(routeName);
     },
     goHref(url){
       window.location.href = url;
