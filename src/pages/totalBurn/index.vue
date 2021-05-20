@@ -33,10 +33,19 @@ export default {
       wei: "",
       decimals: "",
       cctNum: "----.--------",
+      timer:null
     };
   },
   created() {
     this.getContract();
+    this.getTotalBurn()
+    if(this.timer){
+      clearInterval(this.timer)
+    }else{
+      this.timer=setInterval(()=>{
+        this.getTotalBurn()
+      },5000)
+    }
   },
   computed: {
     desU() {
@@ -48,13 +57,22 @@ export default {
 
   },
   mixins: [h5Copy, initEth, Decimal],
+
+  destroyed(){
+    clearInterval(this.timer)
+  },
+
   methods: {
-    async getContract() {
+   getContract() {
       this.contract = new ethers.Contract(
         this.contractAddress,
         abi,
         this.signer
       );
+    },
+
+   async getTotalBurn(){
+     if(this.contract==null) return false
       let [error, res] = await this.to(this.contract.totalBurn());
       let [decimalserror, decimals] = await this.to(this.contract.decimals());
       this.doResponse(error, res, "wei");
