@@ -11,6 +11,7 @@ import SuperNode2 from '@/pages/superNode2/superNode';
 import SuperNode2Rule from '@/pages/superNode2/superNode2Rule';
 import Signature from '@/pages/signature';
 import PizzaAirdrop from '@/pages/pizzaAirdrop/pizzaAirdrop';
+import totalBurn from '@/pages/totalBurn';
 
 Vue.use(Router);
 
@@ -69,7 +70,10 @@ export default new Router({
     name: 'pizzaAirdrop',
     component: PizzaAirdrop
   },
-  
-  
+  {
+    path: '/totalBurn',
+    name: 'totalBurn',
+    component: totalBurn
+  }
   ]
 })
