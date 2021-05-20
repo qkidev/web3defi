@@ -113,6 +113,12 @@ export default {
           title: "签名&验证信息",
           desc: "轻松验证/签名任何信息",
           routeName: 'signature'
+        },
+        {
+          icon: require("../../assets/temp/7.png"),
+          title: "CCT消耗",
+          desc: "流通销毁CCT数量",
+          routeName: 'totalBurn'
         }
       ];
     },
