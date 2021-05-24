@@ -103,18 +103,18 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+
 .totalBurn {
   background: url("~@/assets/totalBurn/bg02.png") no-repeat,
     url("~@/assets/totalBurn/bg01.png") no-repeat,
     linear-gradient(180deg, #192132 0%, #1a2132 33%, #191f30 100%);
   background-position: bottom center, top center;
   background-size: 100%;
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   bottom: 0;
-  color: #fff;
   .appbar {
     position: relative;
     display: flex;
