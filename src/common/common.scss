@@ -22,7 +22,10 @@ $text_grey1_color: #A6AABF;
 $text_grey2_color: #363F6A;
 $text_blue_color: #79A0FF;
 
-
+@font-face {
+  font-family: 'D-DIN-Bold';
+  src: url('~@/assets/fonts/D-DIN-Bold.otf');
+}
 
 .minestInverseTxt{
   color: $text_inverse_color;

@@ -14,6 +14,7 @@ import PizzaAirdrop from '@/pages/pizzaAirdrop/pizzaAirdrop';
 import CctExchangeHome from '@/pages/cctExchange/index';
 import CctExchange from '@/pages/cctExchange/exchange';
 import CctExchangeDesc from '@/pages/cctExchange/desc';
+import totalBurn from '@/pages/totalBurn';
 
 Vue.use(Router);
 
@@ -86,9 +87,10 @@ export default new Router({
     path: '/cctExchangeDesc',
     name: 'cctExchangeDesc',
     component: CctExchangeDesc
-  },
-  
-  
-  
+  },{
+    path: '/totalBurn',
+    name: 'totalBurn',
+    component: totalBurn
+  }
   ]
 })

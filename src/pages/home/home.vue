@@ -116,6 +116,12 @@ export default {
         },
         {
           icon: require("../../assets/temp/7.png"),
+          title: "CCT消耗",
+          desc: "流通销毁CCT数量",
+          routeName: 'totalBurn'
+        },
+        {
+          icon: require("../../assets/temp/8.png"),
           title: "WCCT",
           desc: "把cct包裹成标准的token，用于交易所兼容",
           routeName: 'cctExchangeHome'
@@ -123,11 +129,7 @@ export default {
       ];
     },
     goto(routeName){
-      if(routeName === 'signature'){
-        this.goHref('https://app.web3defi.io/#/signature');
-      } else {
-        this.$router.push(routeName);
-      }
+      this.$router.push(routeName);
     },
     goHref(url){
       window.location.href = url;

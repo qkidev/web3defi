@@ -82,12 +82,12 @@ const initEth = {
       }
       return true;
     },
-    toAsync(fnPromise) {
+    to(fnPromise) {
       return fnPromise.then(res => [null, res]).catch(error => [error]);
     },
     // 获取地址
     async getAddress () {
-      const [error, address] = await this.toAsync(this.signer.getAddress())
+      const [error, address] = await this.to(this.signer.getAddress())
       console.log("getAddress======", address)
       if (error == null) {
         this.myAddress = address
