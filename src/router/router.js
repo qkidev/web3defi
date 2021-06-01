@@ -11,6 +11,9 @@ import SuperNode2 from '@/pages/superNode2/superNode';
 import SuperNode2Rule from '@/pages/superNode2/superNode2Rule';
 import Signature from '@/pages/signature';
 import PizzaAirdrop from '@/pages/pizzaAirdrop/pizzaAirdrop';
+import CctExchangeHome from '@/pages/cctExchange/index';
+import CctExchange from '@/pages/cctExchange/exchange';
+import CctExchangeDesc from '@/pages/cctExchange/desc';
 
 Vue.use(Router);
 
@@ -69,6 +72,22 @@ export default new Router({
     name: 'pizzaAirdrop',
     component: PizzaAirdrop
   },
+  {
+    path: '/cctExchangeHome',
+    name: 'cctExchangeHome',
+    component: CctExchangeHome
+  },
+  {
+    path: '/cctExchange',
+    name: 'cctExchange',
+    component: CctExchange
+  },
+  {
+    path: '/cctExchangeDesc',
+    name: 'cctExchangeDesc',
+    component: CctExchangeDesc
+  },
+  
   
   
   ]

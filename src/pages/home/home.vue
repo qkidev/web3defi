@@ -113,6 +113,12 @@ export default {
           title: "签名&验证信息",
           desc: "轻松验证/签名任何信息",
           routeName: 'signature'
+        },
+        {
+          icon: require("../../assets/temp/7.png"),
+          title: "WCCT",
+          desc: "把cct包裹成标准的token，用于交易所兼容",
+          routeName: 'cctExchangeHome'
         }
       ];
     },
@@ -227,7 +233,7 @@ export default {
   width: 80px;
   height: 63px;
 }
-.recomment_list_item .signature_dapp_icon{
+.recomment_list_item .signature_dapp_icon, .cctExchangeHome_dapp_icon{
   width: 80px;
   height: 86px;
 }

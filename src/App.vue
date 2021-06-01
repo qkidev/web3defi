@@ -22,7 +22,6 @@ body {
   margin: 0;
   padding: 0;
   font-family: PingFangSC-Light, PingFang SC;
-  // font-size: 20px;
   background-color: #F6F5FC;
 }
 #app {
@@ -33,5 +32,7 @@ body {
   color: #2c3e50;
   min-height: 100%;
   background-color: #F6F5FC;
+  max-width: 500PX;
+  margin: 0 auto;
 }
 </style>
