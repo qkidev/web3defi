@@ -87,7 +87,8 @@ export default new Router({
     path: '/cctExchangeDesc',
     name: 'cctExchangeDesc',
     component: CctExchangeDesc
-  },{
+  },
+  {
     path: '/totalBurn',
     name: 'totalBurn',
     component: totalBurn

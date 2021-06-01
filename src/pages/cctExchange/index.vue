@@ -20,7 +20,7 @@
         <img src="../../assets/cctExchange/wToc.png" alt="" class="icon"/>
         <span class="fStyle_24_363F6A_w500">WCCT转CCT</span>
       </div>
-      <div class="flex_v_center_center entry_item flex1 ml_50" @click="goto('desc')">
+      <div class="flex_v_center_center entry_item flex1 ml_50" @click="goto('cctExchangeDesc')">
         <img src="../../assets/cctExchange/intro.png" alt="" class="icon"/>
         <span class="fStyle_24_363F6A_w500">WCCT说明</span>
       </div>
@@ -31,7 +31,7 @@
 <script>
 import { ethers } from 'ethers';
 import {NORMAL_ABI, WCCT_ABI} from './const'
-import {asyncUtils} from './utils'
+import {initEth} from '../../utils/utils'
 export default {
   data() {
     return {
@@ -45,26 +45,26 @@ export default {
     }
   },
   watch: {
-    address() {
+    myAddress() {
       this.initContract();
     }
   },
   created() {
-    if(this.address != ''){
+    if(this.myAddress != ''){
       this.initContract();
     }
   },
-  mixins:[asyncUtils],
+  mixins:[initEth],
   methods: {
     async initContract() {
       this.cctContract = new ethers.Contract(this.cctAddress, NORMAL_ABI, this.signer);
       let [, cctDecimal] = await this.to(this.cctContract.decimals())
-      let [err, balance] = await this.to(this.cctContract.balanceOf(this.address))
+      let [err, balance] = await this.to(this.cctContract.balanceOf(this.myAddress))
       this.doResponse(err, balance, 'cctBalance', cctDecimal)
       // wcct
       this.wcctContract = new ethers.Contract(this.wcctAddress, WCCT_ABI, this.signer);
       // let [, wcctDecimal] = await this.to(this.$root.wcctContract.decimals())
-      let [err2, balance2] = await this.to(this.wcctContract.balanceOf(this.address))
+      let [err2, balance2] = await this.to(this.wcctContract.balanceOf(this.myAddress))
       this.doResponse(err2, balance2, 'wcctBalance', cctDecimal)
     },
     goto(routeName, fromCoin, toCoin) {

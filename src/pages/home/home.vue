@@ -44,7 +44,6 @@ export default {
   },
   created() {
     this.getBanner();
-    // this.getHistory();
     this.getRecomments();
   },
   methods: {

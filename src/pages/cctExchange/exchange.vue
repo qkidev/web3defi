@@ -3,7 +3,7 @@
     <div class="flex1">
       <div class="flex_h_end_center pt_30">
       <div class="address_wrap flex_h_center_center">
-        <span class="fStyle_20_ffffff_w600">{{ subAddress(address) }}</span>
+        <span class="fStyle_20_ffffff_w600">{{ subAddress(myAddress) }}</span>
         <img src="../../assets/cctExchange/wallet.png" alt="" class="wallet_icon" />
       </div>
     </div>
@@ -55,7 +55,7 @@
 </template>
 
 <script>
-import {asyncUtils, Decimal} from './utils'
+import {initEth, Decimal} from '../../utils/utils'
 import { ethers } from 'ethers';
 import { Toast } from 'vant';
 import {NORMAL_ABI,WCCT_ABI} from './const'
@@ -63,7 +63,6 @@ import Big from "big.js";
 export default {
   data() {
     return {
-      address: "",
       amount: '',
       balance: 0.00,
       decimal: 8,
@@ -81,9 +80,9 @@ export default {
       wcctContract: null,
     };
   },
-  mixins:[asyncUtils, Decimal],
+  mixins:[initEth, Decimal],
   watch: {
-    address() {
+    myAddress() {
       this.initContract()
     },
   },
@@ -91,7 +90,7 @@ export default {
     let {from, to} = this.$route.query;
     this.fromCoin = from;
     this.toCoin = to;
-    if (this.address != ''){
+    if (this.myAddress != ''){
       this.initContract()
     }
   },
@@ -112,7 +111,7 @@ export default {
       } else {
         contract = this.wcctContract;
       }
-      let [err, balance] = await this.to(contract.balanceOf(this.address))
+      let [err, balance] = await this.to(contract.balanceOf(this.myAddress))
         this.doResponse(err, balance, 'balance', this.decimal)
     },
     // 全部兑换
@@ -122,7 +121,7 @@ export default {
     // 查询授权
     async allowanceContract(amount, callback) {
       let [err2, allowce] = await this.to(
-       this.cctContract.allowance(this.address, this.wcctAddress)
+       this.cctContract.allowance(this.myAddress, this.wcctAddress)
       );
       if (err2 == null) {
         let hex = ethers.utils.hexValue(allowce);
@@ -157,7 +156,7 @@ export default {
       );
       if (this.doResponse(err, res)) {
         Toast("权限申请中...");
-        this.queryTransation(this.provider, res.hash, callback);
+        this.queryTransation(res.hash, callback);
       } else {
         this.submitFlag = false;
         this.loadingModel = false;
@@ -183,7 +182,7 @@ export default {
       }))
       if (this.doResponse(error, res)) {
         Toast('提交请求成功，等待区块确认');
-        this.queryTransation(this.provider,res.hash, () => {
+        this.queryTransation(res.hash, () => {
           Toast('交易完成!')
           this.submitflag = false;
           this.loadingModel = false;
@@ -213,7 +212,7 @@ export default {
       }))
       if (this.doResponse(error, res)) {
         Toast('提交请求成功，等待区块确认');
-        this.queryTransation(this.provider,res.hash, () => {
+        this.queryTransation(res.hash, () => {
           Toast('交易完成!')
           this.submitflag = false;
           this.loadingModel = false;
