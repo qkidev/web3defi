@@ -39,7 +39,7 @@ export default {
       wcctBalance: '0.00',
       cctAddress: '0xe8377ecb0f32f0c16025d5cf360d6c9e2ea66adf',
       cctContract: null,
-      wcctAddress: '0x6EE9aE85901FD0e05b85e998900eEAf7dd1e36b1',
+      wcctAddress: '0xd9C7e130cd5a6D1Ecea81423502aFB67A9Be259D',
       wcctContract: null,
       decimal: 8
     }
