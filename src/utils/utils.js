@@ -163,6 +163,32 @@ const initEth = {
       var s = date.getSeconds();
       return Y + M + D + h + m + s;
     },
+    // 处理地址
+    subAddress(address) {
+      console.log(address)
+      if (address && address != "") {
+        let prevStr = address.substring(0, 5);
+        let lastStr = address.substring(
+          address.length - 5,
+          address.length
+        );
+        return prevStr + "..." + lastStr;
+      } else {
+        return "";
+      }
+    },
+    // 获得gas
+    async getEstimateGas (fn) {
+      const [err, res] = await this.to(fn())
+      if (this.doResponse(err, res)) {
+        const hex = ethers.utils.hexValue(res)
+        const Value = this.hex2int(hex)
+        console.log('getEstimateGas========', Value)
+        return String(Decimal.mul(Value, 1.5)).split('.')[0]
+      } else {
+        return 0
+      }
+    },
   }
 }
 Big.DP = 18

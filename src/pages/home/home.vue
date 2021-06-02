@@ -44,7 +44,6 @@ export default {
   },
   created() {
     this.getBanner();
-    // this.getHistory();
     this.getRecomments();
   },
   methods: {
@@ -119,6 +118,12 @@ export default {
           title: "CCT消耗",
           desc: "流通销毁CCT数量",
           routeName: 'totalBurn'
+        },
+        {
+          icon: require("../../assets/temp/8.png"),
+          title: "WCCT",
+          desc: "把cct包裹成标准的token，用于交易所兼容",
+          routeName: 'cctExchangeHome'
         }
       ];
     },
@@ -229,7 +234,7 @@ export default {
   width: 80px;
   height: 63px;
 }
-.recomment_list_item .signature_dapp_icon{
+.recomment_list_item .signature_dapp_icon, .cctExchangeHome_dapp_icon{
   width: 80px;
   height: 86px;
 }

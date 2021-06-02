@@ -2,7 +2,7 @@
   <div>
     <div class="header flex_h_center_center">
       <div class="bg-img back_bg" @click="goBack"></div>
-      <div class="bigTxt flex1">{{from}}转{{to}}</div>
+      <div class="bigTxt flex1">{{from}}转{{toCoin}}</div>
       <div class="back_bg_placeholder"></div>
     </div>
     <div class="loading_section" v-if="loading">
@@ -19,7 +19,7 @@
         </div>
       </div>
       <div class="from_item flex_v">
-        <div class="smallerGrey2Txt alignLeft mb_10">可兑换{{to}}</div>
+        <div class="smallerGrey2Txt alignLeft mb_10">可兑换{{toCoin}}</div>
         <div class="input_wrap flex_h_center">
           <input
             type="text"
@@ -29,7 +29,7 @@
             disabled
           />
           <div class="hr"></div>
-          <div class="smallestGrey1Txt">{{to}}</div>
+          <div class="smallestGrey1Txt">{{toCoin}}</div>
         </div>
       </div>
       <div class="submit_btn flex_h_center_center normalInverseTxt" @click="submit">立即兑换</div>
@@ -48,7 +48,7 @@ export default {
   data() {
     return {
       from: "",
-      to: "",
+      toCoin: "",
       fromAmount: "",
       toAmount: "",
       loading: false
@@ -58,7 +58,7 @@ export default {
   created() {
     // console.log(this.$route)
     this.from = this.$route.params.from;
-    this.to = this.$route.params.to;
+    this.toCoin = this.$route.params.to;
     this.contractAddress = this.$route.params.contractAddress;
   },
   methods: {
