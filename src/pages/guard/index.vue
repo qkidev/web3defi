@@ -54,7 +54,7 @@
       <p>{{currentTokenCodeName | toLocaleUpperCase}} 余额：{{balance}}</p>
       <input  v-model="joinNumber" type="text" placeholder="请输入守擂数量" />
     </div>
-    <div class="btn1" @click="submit">立即参与</div>
+    <div class="btn1" @click="submit">{{authorization?'立即参与':'立即授权'}}</div>
     <div class="des">
       <p class="des-title">* 规则</p>
       <p>1、守擂数量：无门槛</p>
@@ -109,6 +109,7 @@ export default {
   },
   data() {
     return {
+      default:'CCT',
       erContract:null,//erc20合约
       guContract:null,//擂台合约
       show: false,
@@ -139,6 +140,13 @@ export default {
   computed:{
     currentTokenCodeName(){
       return this.currentTokenCode?.name ?? '--'
+    },
+    authorization(){
+      if(this.allowanceResp < this.joinNumber){
+        return false
+      }else{
+        return true
+      }
     }
   },
   filters:{
@@ -167,39 +175,30 @@ export default {
       this.getNetwork()
     },
    async submit(){
-     console.log(ethers.utils.parseUnits('10', this.decimal).toString());
       if(this.guContract==null || this.erContract==null){
         return this.$toast('出错了！')
       }
-      if(!this.joinNumber)return this.$toast('守擂数量不能为空')
+      
+      if(!this.joinNumber) return this.$toast('守擂数量不能为空')
+      if(this.joinNumber<=0) return this.$toast('请输入正确的守擂数量')
+      if(this.joinNumber>this.balance) return this.$toast('余额不足')
 
-      const [allowanceErr,allowanceResp] = await this.to(this.erContract.allowance(this.myAddress,this.guardAddress))
-  
-      this.doResponse(allowanceErr, allowanceResp, "allowanceResp",this.decimal);
-      if(this.allowanceResp<this.joinNumber){
-        //如果没设置默认授权数量 根据根据表单授权
-        const approveNum = this.approveNum ?? this.joinNumber;
-
-        const [approveErr,] = await this.to(this.erContract.approve(this.guardAddress,ethers.utils.parseUnits(approveNum+'', this.decimal)))
-        console.log(approveErr);
-
-        if(approveErr){
-          return this.$toast('授权失败')
-        }else{
-          return this.$toast('授权成功')
-        }
+      if(!this.authorization){
+        return  this.approve()
       }
 
       if(this.loading) return false
       this.loading = true
-      const [err,] = await this.to(this.guContract.join(this.currentTokenCode.contract_origin,ethers.utils.parseUnits(this.joinNumber+'',this.decimal)))
-      if(err){
-        return this.$toast(err.message)
-      }else{
+
+      try {
+        await this.to(this.guContract.join(this.currentTokenCode.contract_origin,ethers.utils.parseUnits(this.joinNumber+'',this.decimal)))
         this.getCurrentTokenCodeContract()
         this.joinNumber = ''
+      } catch (error) {
+        this.$toast(error.message)
+      }finally{
+        this.loading = false
       }
-      this.loading = false
     },
    async handleTokenCode(){
      if(!this.newTokenCode) return this.$toast('合约地址不能为空')
@@ -220,6 +219,18 @@ export default {
         // 
       }
     },
+
+    //授权
+    async approve(){
+        const approveNum = this.approveNum ?? this.joinNumber;
+        try {
+          await this.erContract.approve(this.guardAddress,ethers.utils.parseUnits(approveNum+'', this.decimal))
+        } catch (error) {
+          console.log('授权失败');
+          this.$toast(error.message)
+        }
+    },
+
     //代币合约
     async getCurrentTokenCodeContract(){
       const contract =  new ethers.Contract(this.currentTokenCode.contract_origin, erc20abi, this.signer);
@@ -229,15 +240,23 @@ export default {
       let [, gubalance] = await this.to(contract.balanceOf(this.guardAddress))
       this.decimal = decimal
       this.doResponse(err, balance, 'balance', decimal)
-     this.gubalance = ethers.utils.formatUnits(gubalance, decimal);
-      // console.log(ethers.utils.formatUnits(gubalance, decimals));
-
+      this.gubalance = ethers.utils.formatUnits(gubalance, decimal);
+      //获取授权数量
+      const [allowanceErr,allowanceResp] = await this.to(this.erContract.allowance(this.myAddress,this.guardAddress))
+      this.doResponse(allowanceErr, allowanceResp, "allowanceResp",decimal);
+      //获取奖金池
       this.guardContract()
 
+      //监听授权
+      
+      console.log(contract.address);
       contract.on("Approval", (owner, spender,value, event) => {
           console.log(owner, spender,value, event);
+          // if(owner == this.myAddress){
+          //   this.$toast('授权成功')
+          //   this.getCurrentTokenCodeContract()
+          // }
       });
-      
       
     },
     //擂台合约
@@ -277,7 +296,7 @@ export default {
         const {data} = await network({v:'9.9.9',nonce:md5(new Date().getTime().toString())})
         this.networks = data.networks?.filter(e=> this.targetCode.indexOf(e.name.toLocaleUpperCase())>=0) ?? []
         this.symbols = data.symbols?.filter(e=> this.networks.findIndex(y=>y.id===e.network.id&&y.id!=e.id)>=0) ?? []
-        this.currentTokenCode = this.symbols.find(e=>e.name ===this.targetCode[0]) ?? this.symbols[0]
+        this.currentTokenCode = this.symbols.find(e=>e.name.toLocaleUpperCase() ===this.default) ?? this.symbols[0]
       } catch (error) {
         this.$toast('出错了')
       }
