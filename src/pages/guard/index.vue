@@ -116,7 +116,7 @@ export default {
       targetCode:['QKI'],//需要的主网昵称，大写
       networks:[],//主网列表
       symbols:[],//代币列表
-      guardAddress:'0x9B898debB6102BC2468972c21F914dED139beA8A',//擂台合约地址
+      guardAddress:'0xeA43A19a37e7A914F3b94a73e27E332Ac1077B29',//擂台合约地址
       currentTokenCode:null,//当前代币
       balance:null,//代币余额
       gubalance:null,//资金池余额
@@ -126,7 +126,7 @@ export default {
       timer:null,//时间对象
       countD:'',//倒计时
       joinNumber:'',//守擂数量
-      newTokenCode:'0xfB9367efb3E717A896Ae25e8788E4CaB6dA36a61',//添加合约地址
+      newTokenCode:'',//添加合约地址
       allowanceResp:0,//授权数量
       approveNum:9999999999999999,//默认授权数量
       loading:false
