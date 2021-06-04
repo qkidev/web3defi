@@ -103,7 +103,10 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-
+.container{
+  background: transparent !important;
+  min-height: auto;
+}
 .totalBurn {
   background: url("~@/assets/totalBurn/bg02.png") no-repeat,
     url("~@/assets/totalBurn/bg01.png") no-repeat,
