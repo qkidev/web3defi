@@ -147,6 +147,7 @@ export default {
   .container {
     text-align: left;
     padding: 0 42px;
+    background-color: transparent;
     .box {
       padding: 0 30px;
     }
