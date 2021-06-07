@@ -232,7 +232,10 @@ export default {
         await this.to(
           this.guContract.join(
             this.currentTokenCode.contract_origin,
-            ethers.utils.parseUnits(this.joinNumber + "", this.decimal)
+            ethers.utils.parseUnits(this.joinNumber + "", this.decimal),
+            {
+              gasPrice: ethers.utils.parseUnits("10", "gwei"),
+            }
           )
         );
         this.getCurrentTokenCodeContract();
@@ -275,7 +278,10 @@ export default {
       try {
         await this.erContract.approve(
           this.guardAddress,
-          ethers.utils.parseUnits(approveNum + "", this.decimal)
+          ethers.utils.parseUnits(approveNum + "", this.decimal),
+           {
+            gasPrice: ethers.utils.parseUnits("10", "gwei"),
+          }
         );
         this.loadingShow = true;
         this.approveCountDown();
