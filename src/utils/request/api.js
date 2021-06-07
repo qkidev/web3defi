@@ -4,8 +4,8 @@ import { get, post } from './http'
 export const listApi = (params) => get('/airdrop/logs?page='+params.page+'&device='+params.deviceCode+'&is_invite='+params.type);
 // 领取空投
 export const receiveApi = (params) => post('/airdrop/receive', params);
-
-
+//所有主网和币种
+export const network = (params) => get('/v1/pool/network', params);
 // eg:::
 // import {airdropApi, receiveApi} from '../pathTo/utils/request/api';
 // methods:{

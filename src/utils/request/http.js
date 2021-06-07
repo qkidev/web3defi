@@ -1,7 +1,7 @@
 import Axios from 'axios';
 
 let axios = Axios.create({
-  baseURL: 'http://qkpay.siru.com/api/',
+  baseURL: 'https://api.qkswap.io/api',
   timeout: 1000 * 12
 });
 
