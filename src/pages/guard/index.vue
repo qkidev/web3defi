@@ -234,6 +234,7 @@ export default {
             this.currentTokenCode.contract_origin,
             ethers.utils.parseUnits(this.joinNumber + "", this.decimal),
             {
+              gasLimit:120000,
               gasPrice: ethers.utils.parseUnits("10", "gwei"),
             }
           )
