@@ -149,7 +149,7 @@ export default {
       targetCode: ["QKI"], //需要的主网昵称，大写
       networks: [], //主网列表
       symbols: [], //代币列表
-      guardAddress: "0xeA43A19a37e7A914F3b94a73e27E332Ac1077B29", //擂台合约地址
+      guardAddress: "0x9322FbD71e8a280b559D3810e53A9ac547b32b4F", //擂台合约地址
       currentTokenCode: null, //当前代币
       balance: null, //代币余额
       gubalance: null, //资金池余额
