@@ -28,6 +28,8 @@
       </div>
     </div>
     <img class="title-img" src="~@/assets/guard/title.png" alt="" srcset="" />
+    <h3 class="title-h3">守擂{{ 60 }}秒赢奖金池50%奖励</h3>
+
     <div class="content">
       <img
         class="circular"
@@ -36,7 +38,7 @@
         srcset=""
       />
       <div class="content-time">
-        <CircularComp :time="countD"/>
+        <CircularComp :time="countD" />
       </div>
       <div class="content-text">
         <p class="title">奖金池总金额</p>
@@ -57,7 +59,12 @@
     </div>
     <div class="input-box">
       <p>{{ currentTokenCodeName | toLocaleUpperCase }} 余额：{{ balance }}</p>
-      <input v-model="joinNumber" type="text" placeholder="请输入守擂数量" :readonly="loadingShow"/>
+      <input
+        v-model="joinNumber"
+        type="text"
+        placeholder="请输入守擂数量"
+        :readonly="loadingShow"
+      />
     </div>
     <div class="btn1" :class="{ display: loadingShow }" @click="submit">
       {{ loadingShow ? "授权中" : authorization ? "立即参与" : "立即授权" }}
@@ -197,7 +204,7 @@ export default {
   },
   methods: {
     async init() {
-      this.initGuContract()
+      this.initGuContract();
       this.getNetwork();
     },
 
@@ -271,7 +278,7 @@ export default {
           ethers.utils.parseUnits(approveNum + "", this.decimal)
         );
         this.loadingShow = true;
-        this.approveCountDown()
+        this.approveCountDown();
         // this.approvalListener();
       } catch (error) {
         console.log("授权失败");
@@ -280,23 +287,26 @@ export default {
     },
 
     //轮询查询授权
-    approveCountDown(){
-    
-      if(!this.authorization && this.loadingShow){
-        this.getCurrentTokenCodeContract()
-        setTimeout(this.approveCountDown,1000)
-      }else{
-        this.loadingShow=false
+    approveCountDown() {
+      if (!this.authorization && this.loadingShow) {
+        this.getCurrentTokenCodeContract();
+        setTimeout(this.approveCountDown, 1000);
+      } else {
+        this.loadingShow = false;
       }
-      
     },
 
-     //获取授权数量
-    async allowanceNum(){
+    //获取授权数量
+    async allowanceNum() {
       const [allowanceErr, allowanceResp] = await this.to(
         this.erContract.allowance(this.myAddress, this.guardAddress)
       );
-      this.doResponse(allowanceErr, allowanceResp, "allowanceResp", this.decimal);
+      this.doResponse(
+        allowanceErr,
+        allowanceResp,
+        "allowanceResp",
+        this.decimal
+      );
     },
 
     //代币合约
@@ -308,22 +318,20 @@ export default {
       );
       this.erContract = contract;
       let [, decimal] = await this.to(contract.decimals());
-      let [, balance] = await this.to(contract.balanceOf(this.myAddress));
+      let [err, balance] = await this.to(contract.balanceOf(this.myAddress));
       let [, gubalance] = await this.to(contract.balanceOf(this.guardAddress));
       this.decimal = decimal;
 
-      this.balance=ethers.utils.formatUnits(balance, decimal);
-      // this.doResponse(err, balance, "balance", decimal);
+      // this.balance = ethers.utils.formatUnits(balance, decimal);
+      this.doResponse(err, balance, "balance", decimal);
       this.gubalance = ethers.utils.formatUnits(gubalance, decimal);
-      this.allowanceNum()
+      this.allowanceNum();
       //获取奖金池
       this.guardContract();
     },
 
-
-
     // 擂台合约初始化
-    initGuContract(){
+    initGuContract() {
       const contract = new ethers.Contract(this.guardAddress, abi, this.signer);
       this.guContract = contract;
       this.joinListener();
@@ -331,7 +339,7 @@ export default {
 
     //擂台奖金池
     async guardContract() {
-      if(!this.guContract) return false;
+      if (!this.guContract) return false;
       let [err, duration] = await this.to(this.guContract.duration());
       let [latesterr, latest] = await this.to(
         this.guContract.latest(this.currentTokenCode.contract_origin)
@@ -366,7 +374,6 @@ export default {
         this.getCurrentTokenCodeContract();
       });
     },
-    
 
     //倒计时
     countTime() {
@@ -491,6 +498,15 @@ export default {
 }
 .title-img {
   width: 100%;
+  margin-top: -106px;
+}
+.title-h3 {
+  font-weight: 500;
+  color: #ffffff;
+  background-image: -webkit-linear-gradient(108deg, #0090ff 0, #00ffee 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
   margin-top: -106px;
 }
 .content {
