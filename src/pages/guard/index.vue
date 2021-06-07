@@ -28,7 +28,7 @@
       </div>
     </div>
     <img class="title-img" src="~@/assets/guard/title.png" alt="" srcset="" />
-    <h3 class="title-h3">守擂{{ 60 }}秒赢奖金池50%奖励</h3>
+    <h3 class="title-h3">守擂{{ this.guarDuration }}秒赢奖金池50%奖励</h3>
 
     <div class="content">
       <img
@@ -219,7 +219,7 @@ export default {
 
       if (!this.joinNumber) return this.$toast("守擂数量不能为空");
       if (this.joinNumber <= 0) return this.$toast("请输入正确的守擂数量");
-      if (this.joinNumber > this.balance) return this.$toast("余额不足");
+      if (parseFloat(this.joinNumber) > parseFloat(this.balance)) return this.$toast("余额不足");
 
       if (!this.authorization) {
         return this.approve();
@@ -318,12 +318,12 @@ export default {
       );
       this.erContract = contract;
       let [, decimal] = await this.to(contract.decimals());
-      let [err, balance] = await this.to(contract.balanceOf(this.myAddress));
+      let [, balance] = await this.to(contract.balanceOf(this.myAddress));
       let [, gubalance] = await this.to(contract.balanceOf(this.guardAddress));
       this.decimal = decimal;
 
-      // this.balance = ethers.utils.formatUnits(balance, decimal);
-      this.doResponse(err, balance, "balance", decimal);
+      this.balance = ethers.utils.formatUnits(balance, decimal);
+      // this.doResponse(err, balance, "balance", decimal);
       this.gubalance = ethers.utils.formatUnits(gubalance, decimal);
       this.allowanceNum();
       //获取奖金池
