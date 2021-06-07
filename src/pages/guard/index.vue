@@ -15,7 +15,9 @@
           <div class="code-icon">
             <img :src="currentTokenCode.icon" alt="" srcset="" />
           </div>
-          <div class="code-name">{{currentTokenCode.name | toLocaleUpperCase}}</div>
+          <div class="code-name">
+            {{ currentTokenCode.name | toLocaleUpperCase }}
+          </div>
           <img
             class="more"
             src="~@/assets/guard/more-icon.png"
@@ -34,15 +36,18 @@
         srcset=""
       />
       <div class="content-time">
-        <!-- <CircularComp /> -->
+        <CircularComp />
       </div>
       <div class="content-text">
         <p class="title">奖金池总金额</p>
-        <p class="number">{{gubalance}}</p>
-        <div class="time" v-if="guardAccount === '0x0000000000000000000000000000000000000000'">
+        <p class="number">{{ gubalance }}</p>
+        <div
+          class="time"
+          v-if="guardAccount === '0x0000000000000000000000000000000000000000'"
+        >
           <span>暂未开始</span>
         </div>
-        <div class="time count-down-bg" v-else-if="countD>0">
+        <div class="time count-down-bg" v-else-if="countD > 0">
           <span>守擂倒计时：</span><span class="count-time">{{ countD }}</span>
         </div>
         <div class="time" v-else>
@@ -51,14 +56,16 @@
       </div>
     </div>
     <div class="input-box">
-      <p>{{currentTokenCodeName | toLocaleUpperCase}} 余额：{{balance}}</p>
-      <input  v-model="joinNumber" type="text" placeholder="请输入守擂数量" />
+      <p>{{ currentTokenCodeName | toLocaleUpperCase }} 余额：{{ balance }}</p>
+      <input v-model="joinNumber" type="text" placeholder="请输入守擂数量" />
     </div>
-    <div class="btn1" @click="submit">{{authorization?'立即参与':'立即授权'}}</div>
+    <div class="btn1" :class="{ display: loadingShow }" @click="submit">
+      {{ loadingShow ? "授权中" : authorization ? "立即参与" : "立即授权" }}
+    </div>
     <div class="des">
       <p class="des-title">* 规则</p>
       <p>1、守擂数量：无门槛</p>
-      <p>2、守擂时间：60秒</p>
+      <p>2、守擂时间：{{this.guarDuration}}秒</p>
       <p>
         3、奖励发放时间：守擂结束后，有人发起守擂随即自动发放奖励至余额，同时新开下一轮守擂
       </p>
@@ -71,20 +78,35 @@
         <div class="wrapper-box">
           <div class="model-head">
             <div>选择一个币种</div>
-            <img class="close-icon" src="~@/assets/guard/close.png" alt="" srcset="" @click="show = false">
+            <img
+              class="close-icon"
+              src="~@/assets/guard/close.png"
+              alt=""
+              srcset=""
+              @click="show = false"
+            />
           </div>
           <div class="search">
             <div class="ipt">
-              <input type="text" v-model="newTokenCode" placeholder="没找到？输入合约试一试">
+              <input
+                type="text"
+                v-model="newTokenCode"
+                placeholder="没找到？输入合约试一试"
+              />
             </div>
             <div class="btn-add">
               <button @click="handleTokenCode">添加</button>
             </div>
           </div>
           <div class="scroll">
-             <div class="scrool-wrapper">
-               <CodeItem v-for="item in symbols" :key="item.id" :data="item" @item-click="handleItemClick"/>
-             </div>
+            <div class="scrool-wrapper">
+              <CodeItem
+                v-for="item in symbols"
+                :key="item.id"
+                :data="item"
+                @item-click="handleItemClick"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -92,223 +114,290 @@
   </div>
 </template>
 <script>
-import {initEth} from '@/utils/utils.js'
-import { Popup } from "vant";
-import CodeItem from './code-item'
-import {network} from '@/utils/request/api'
-// import CircularComp from './circular-comp'
-import md5 from 'js-md5';
-import { ethers } from 'ethers';
-import abi from './abi'
-import erc20abi from './erc20abi'
+import { initEth } from "@/utils/utils.js";
+import { Popup, Loading, Overlay } from "vant";
+import CodeItem from "./code-item";
+import { network } from "@/utils/request/api";
+import CircularComp from "./circular-comp";
+import md5 from "js-md5";
+import { ethers } from "ethers";
+import abi from "./abi";
+import erc20abi from "./erc20abi";
 export default {
   components: {
-    // CircularComp,
+    CircularComp,
     [Popup.name]: Popup,
-    CodeItem
+    [Loading.name]: Loading,
+    [Overlay.name]: Overlay,
+    CodeItem,
   },
   data() {
     return {
-      default:'CCT',
-      erContract:null,//erc20合约
-      guContract:null,//擂台合约
+      loadingShow: false,
+      default: "CCT",
+      erContract: null, //erc20合约
+      guContract: null, //擂台合约
       show: false,
-      decimal:1,//精度
-      targetCode:['QKI'],//需要的主网昵称，大写
-      networks:[],//主网列表
-      symbols:[],//代币列表
-      guardAddress:'0xeA43A19a37e7A914F3b94a73e27E332Ac1077B29',//擂台合约地址
-      currentTokenCode:null,//当前代币
-      balance:null,//代币余额
-      gubalance:null,//资金池余额
-      guarDuration:0,//擂台时长
-      guardTime:null,//擂台时间
-      guardAccount:'0x0000000000000000000000000000000000000000',//擂台账户
-      timer:null,//时间对象
-      countD:'',//倒计时
-      joinNumber:'',//守擂数量
-      newTokenCode:'',//添加合约地址
-      allowanceResp:0,//授权数量
-      approveNum:9999999999999999,//默认授权数量
-      loading:false
+      decimal: 1, //精度
+      targetCode: ["QKI"], //需要的主网昵称，大写
+      networks: [], //主网列表
+      symbols: [], //代币列表
+      guardAddress: "0xeA43A19a37e7A914F3b94a73e27E332Ac1077B29", //擂台合约地址
+      currentTokenCode: null, //当前代币
+      balance: null, //代币余额
+      gubalance: null, //资金池余额
+      guarDuration: 0, //擂台时长
+      guardTime: null, //擂台时间
+      guardAccount: "0x0000000000000000000000000000000000000000", //擂台账户
+      timer: null, //时间对象
+      countD: "", //倒计时
+      joinNumber: "", //守擂数量
+      newTokenCode: "", //添加合约地址
+      allowanceResp: 0, //授权数量
+      approveNum: 9999999999999999, //默认授权数量
+      loading: false,
     };
   },
   mixins: [initEth],
-  created(){
-    this.init()
+  created() {
+    this.init();
   },
-  computed:{
-    currentTokenCodeName(){
-      return this.currentTokenCode?.name ?? '--'
+  computed: {
+    currentTokenCodeName() {
+      return this.currentTokenCode?.name ?? "--";
     },
-    authorization(){
-      if(this.allowanceResp < this.joinNumber){
-        return false
-      }else{
-        return true
+    authorization() {
+      if (this.allowanceResp < this.joinNumber) {
+        return false;
+      } else {
+        return true;
       }
-    }
-  },
-  filters:{
-    toLocaleUpperCase(e){
-      if(e!=null && e!= ''){
-        return e.toLocaleUpperCase()
-      }else{
-        return e
-      }
-    }
-  },
-  watch:{
-    currentTokenCode:{
-      deep:true,
-      handler(e){
-        if(e==null) return false
-        this.getCurrentTokenCodeContract()
-      }
-    }
-  },
-  destroyed(){
-    clearInterval(this.timer)
-  },
-  methods:{
-    async init(){
-      this.getNetwork()
     },
-   async submit(){
-      if(this.guContract==null || this.erContract==null){
-        return this.$toast('出错了！')
+  },
+  filters: {
+    toLocaleUpperCase(e) {
+      if (e != null && e != "") {
+        return e.toLocaleUpperCase();
+      } else {
+        return e;
       }
-      
-      if(!this.joinNumber) return this.$toast('守擂数量不能为空')
-      if(this.joinNumber<=0) return this.$toast('请输入正确的守擂数量')
-      if(this.joinNumber>this.balance) return this.$toast('余额不足')
-
-      if(!this.authorization){
-        return  this.approve()
+    },
+  },
+  watch: {
+    currentTokenCode: {
+      deep: true,
+      handler(e) {
+        if (e == null) return false;
+        this.getCurrentTokenCodeContract();
+      },
+    },
+  },
+  destroyed() {
+    clearInterval(this.timer);
+  },
+  methods: {
+    async init() {
+      this.getNetwork();
+    },
+    async submit() {
+      if (this.loadingShow) {
+        return false;
       }
 
-      if(this.loading) return false
-      this.loading = true
+      if (this.guContract == null || this.erContract == null) {
+        return this.$toast("出错了！");
+      }
+
+      if (!this.joinNumber) return this.$toast("守擂数量不能为空");
+      if (this.joinNumber <= 0) return this.$toast("请输入正确的守擂数量");
+      if (this.joinNumber > this.balance) return this.$toast("余额不足");
+
+      if (!this.authorization) {
+        return this.approve();
+      }
+
+      if (this.loading) return false;
+      this.loading = true;
 
       try {
-        await this.to(this.guContract.join(this.currentTokenCode.contract_origin,ethers.utils.parseUnits(this.joinNumber+'',this.decimal)))
-        this.getCurrentTokenCodeContract()
-        this.joinNumber = ''
+        await this.to(
+          this.guContract.join(
+            this.currentTokenCode.contract_origin,
+            ethers.utils.parseUnits(this.joinNumber + "", this.decimal)
+          )
+        );
+        this.getCurrentTokenCodeContract();
+        this.joinNumber = "";
       } catch (error) {
-        this.$toast(error.message)
-      }finally{
-        this.loading = false
+        this.$toast(error.message);
+      } finally {
+        this.loading = false;
       }
     },
-   async handleTokenCode(){
-     if(!this.newTokenCode) return this.$toast('合约地址不能为空')
+    async handleTokenCode() {
+      if (!this.newTokenCode) return this.$toast("合约地址不能为空");
       var re = new RegExp(/0x[a-f0-9]{40}/);
-      if(!re.test(this.newTokenCode.toLocaleLowerCase()))return this.$toast('请输入正确的合约地址')
+      if (!re.test(this.newTokenCode.toLocaleLowerCase()))
+        return this.$toast("请输入正确的合约地址");
       try {
-        const contract =  new ethers.Contract(this.newTokenCode, erc20abi, this.signer);
-        let [,name] = await this.to(contract.name())
-        if(!name) return this.$toast('合约地址错误')
-        this.currentTokenCode={
+        const contract = new ethers.Contract(
+          this.newTokenCode,
+          erc20abi,
+          this.signer
+        );
+        let [, name] = await this.to(contract.name());
+        if (!name) return this.$toast("合约地址错误");
+        this.currentTokenCode = {
           contract_origin: this.newTokenCode,
-          name:name,
-          icon:this.networks[0].icon
-        }
-        this.newTokenCode = ''
-        this.show = false
+          name: name,
+          icon: this.networks[0].icon,
+        };
+        this.newTokenCode = "";
+        this.show = false;
       } catch (error) {
-        // 
+        //
       }
     },
 
     //授权
-    async approve(){
-        const approveNum = this.approveNum ?? this.joinNumber;
-        try {
-          await this.erContract.approve(this.guardAddress,ethers.utils.parseUnits(approveNum+'', this.decimal))
-        } catch (error) {
-          console.log('授权失败');
-          this.$toast(error.message)
-        }
+    async approve() {
+      const approveNum = this.approveNum ?? this.joinNumber;
+
+      try {
+        await this.erContract.approve(
+          this.guardAddress,
+          ethers.utils.parseUnits(approveNum + "", this.decimal)
+        );
+        this.loadingShow = true;
+      } catch (error) {
+        console.log("授权失败");
+        this.$toast(error.message);
+      }
     },
 
     //代币合约
-    async getCurrentTokenCodeContract(){
-      const contract =  new ethers.Contract(this.currentTokenCode.contract_origin, erc20abi, this.signer);
+    async getCurrentTokenCodeContract() {
+      const contract = new ethers.Contract(
+        this.currentTokenCode.contract_origin,
+        erc20abi,
+        this.signer
+      );
       this.erContract = contract;
-      let [,decimal] = await this.to(contract.decimals())
-      let [err, balance] = await this.to(contract.balanceOf(this.myAddress))
-      let [, gubalance] = await this.to(contract.balanceOf(this.guardAddress))
-      this.decimal = decimal
-      this.doResponse(err, balance, 'balance', decimal)
+      let [, decimal] = await this.to(contract.decimals());
+      let [err, balance] = await this.to(contract.balanceOf(this.myAddress));
+      let [, gubalance] = await this.to(contract.balanceOf(this.guardAddress));
+      this.decimal = decimal;
+      this.doResponse(err, balance, "balance", decimal);
       this.gubalance = ethers.utils.formatUnits(gubalance, decimal);
       //获取授权数量
-      const [allowanceErr,allowanceResp] = await this.to(this.erContract.allowance(this.myAddress,this.guardAddress))
-      this.doResponse(allowanceErr, allowanceResp, "allowanceResp",decimal);
+      const [allowanceErr, allowanceResp] = await this.to(
+        this.erContract.allowance(this.myAddress, this.guardAddress)
+      );
+      this.doResponse(allowanceErr, allowanceResp, "allowanceResp", decimal);
       //获取奖金池
-      this.guardContract()
+      this.guardContract();
 
-      //监听授权
-      
-      console.log(contract.address);
-      contract.on("Approval", (owner, spender,value, event) => {
-          console.log(owner, spender,value, event);
-          // if(owner == this.myAddress){
-          //   this.$toast('授权成功')
-          //   this.getCurrentTokenCodeContract()
-          // }
+      contract.removeListener("Approval");
+      // 使用签名器地址作为事件触发者进行过滤
+      let filterApproval = contract.filters.Approval(this.myAddress);
+      // 监听授权
+      contract.on(filterApproval, (owner, spender, value, event) => {
+        console.log('授权');
+        console.log(owner, spender, value, event);
+        this.$toast("授权成功");
+        this.loadingShow = false;
+        this.getCurrentTokenCodeContract();
       });
-      
     },
     //擂台合约
     async guardContract() {
       const contract = new ethers.Contract(this.guardAddress, abi, this.signer);
-      this.guContract = contract
-      let [err,duration] = await this.to(contract.duration())
-      let [latesterr, latest] = await this.to(contract.latest(this.currentTokenCode.contract_origin))
+      this.guContract = contract;
+      let [err, duration] = await this.to(contract.duration());
+      let [latesterr, latest] = await this.to(
+        contract.latest(this.currentTokenCode.contract_origin)
+      );
       this.doResponse(err, duration, "guarDuration");
-      this.doResponse(latesterr,latest.time, "guardTime");
-      this.guardAccount = latest.account
-      if(this.guardTime > 0){
-        const second = new Date().getTime() / 1000
-        this.countD = parseInt(this.guardTime + this.guarDuration - second)
-        this.countTime()
+      this.doResponse(latesterr, latest.time, "guardTime");
+      this.guardAccount = latest.account;
+
+      contract.removeListener("Join");
+
+      contract.on("Join", (owner, spender, value, event) => {
+        console.log('参与擂台');
+        console.log(owner, spender, value, event);
+        this.guardContract();
+      });
+
+      if (this.guardTime > 0) {
+        this.countTime();
       }
     },
 
     //倒计时
-    countTime(){
-        if(this.timer){
-          clearInterval(this.timer)
-        }
-        this.timer=setInterval(()=>{
-          this.guardContract()
-        },1000)
-    },
-    
-    //下拉框选择
-    handleItemClick(e){
-      this.currentTokenCode = e
-      this.show = false
-    },
-    //获取币种
-    async getNetwork(){
-      try {
-        const {data} = await network({v:'9.9.9',nonce:md5(new Date().getTime().toString())})
-        this.networks = data.networks?.filter(e=> this.targetCode.indexOf(e.name.toLocaleUpperCase())>=0) ?? []
-        this.symbols = data.symbols?.filter(e=> this.networks.findIndex(y=>y.id===e.network.id&&y.id!=e.id)>=0) ?? []
-        this.currentTokenCode = this.symbols.find(e=>e.name.toLocaleUpperCase() ===this.default) ?? this.symbols[0]
-      } catch (error) {
-        this.$toast('出错了')
+    countTime() {
+      const second = new Date().getTime() / 1000;
+      this.countD = parseInt(this.guardTime + this.guarDuration - second);
+      if (this.countD > 0) {
+        this.timer = setTimeout(this.countTime, 1000);
       }
     },
-  }
+
+    //下拉框选择
+    handleItemClick(e) {
+      this.currentTokenCode = e;
+      this.show = false;
+    },
+    //获取币种
+    async getNetwork() {
+      try {
+        const { data } = await network({
+          v: "9.9.9",
+          nonce: md5(new Date().getTime().toString()),
+        });
+        this.networks =
+          data.networks?.filter(
+            (e) => this.targetCode.indexOf(e.name.toLocaleUpperCase()) >= 0
+          ) ?? [];
+        this.symbols =
+          data.symbols?.filter(
+            (e) =>
+              this.networks.findIndex(
+                (y) => y.id === e.network.id && y.id != e.id
+              ) >= 0
+          ) ?? [];
+        this.currentTokenCode =
+          this.symbols.find(
+            (e) => e.name.toLocaleUpperCase() === this.default
+          ) ?? this.symbols[0];
+      } catch (error) {
+        this.$toast("出错了");
+      }
+    },
+  },
 };
 </script>
 <style lang="scss" scoped>
-.model{
+.model {
   overflow: hidden;
-  background: #FFFFFF;
+  background: #ffffff;
   border-radius: 10px;
+}
+.loading-model {
+  .wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+  .loading {
+    width: 120px;
+    height: 120px;
+    background-color: rgb(255, 255, 255);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 .guard-page {
   background: url("~@/assets/guard/bg-top.png") no-repeat, #000338;
@@ -380,7 +469,7 @@ export default {
     width: 727px;
     height: 727px;
   }
-  .content-time{
+  .content-time {
     width: 480px;
     height: 480px;
     position: absolute;
@@ -388,7 +477,6 @@ export default {
     left: 50%;
     margin-left: -240px;
     margin-top: -240px;
-    
   }
   .content-text {
     width: 300px;
@@ -478,6 +566,9 @@ export default {
   text-align: center;
   line-height: 90px;
   margin-top: 53px;
+  &.display {
+    background: #a7a7a7;
+  }
 }
 .des {
   padding: 65px;
@@ -491,8 +582,7 @@ export default {
   }
 }
 
-.model{
-
+.model {
   .wrapper-box {
     width: 577px;
     color: #333333;
@@ -500,52 +590,51 @@ export default {
     flex-direction: column;
     overflow: hidden;
   }
-  .model-head{
+  .model-head {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 32px;
     font-size: 28px;
     flex-shrink: 0;
-    border-bottom: 1px solid #F6F6F6;
-    .close-icon{
+    border-bottom: 1px solid #f6f6f6;
+    .close-icon {
       width: 26px;
       height: 26px;
     }
   }
-  .search{
+  .search {
     padding: 10px 32px;
     display: flex;
     flex-shrink: 0;
-    .ipt{
+    .ipt {
       flex: 1;
     }
-    input{
+    input {
       border: none;
-      border-bottom: 1px solid #DADADA;
+      border-bottom: 1px solid #dadada;
       padding: 22px 0;
       width: 100%;
     }
-    .btn-add{
+    .btn-add {
       display: flex;
       align-items: center;
       flex-shrink: 0;
     }
-    button{
-      background: #3A70DC;
+    button {
+      background: #3a70dc;
       border-radius: 10px;
       border: none;
       color: #fff;
       padding: 11px 40px;
       margin-left: 19px;
-      
+
       font-size: 26px;
     }
   }
-  .scroll{
+  .scroll {
     max-height: 670px;
     overflow: scroll;
   }
 }
-
 </style>
