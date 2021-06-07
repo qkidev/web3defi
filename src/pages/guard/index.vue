@@ -385,7 +385,7 @@ export default {
     //倒计时
     countTime() {
       const second = new Date().getTime() / 1000;
-      this.countD = parseInt(this.guardTime + this.guarDuration - second);
+      this.countD = parseInt(this.guardTime + this.guarDuration - second) - 5;
       if (this.countD > 0) {
         this.timer = setTimeout(this.countTime, 1000);
       }
