@@ -36,7 +36,7 @@
         srcset=""
       />
       <div class="content-time">
-        <CircularComp />
+        <CircularComp :time="countD"/>
       </div>
       <div class="content-text">
         <p class="title">奖金池总金额</p>
@@ -57,7 +57,7 @@
     </div>
     <div class="input-box">
       <p>{{ currentTokenCodeName | toLocaleUpperCase }} 余额：{{ balance }}</p>
-      <input v-model="joinNumber" type="text" placeholder="请输入守擂数量" />
+      <input v-model="joinNumber" type="text" placeholder="请输入守擂数量" :readonly="loadingShow"/>
     </div>
     <div class="btn1" :class="{ display: loadingShow }" @click="submit">
       {{ loadingShow ? "授权中" : authorization ? "立即参与" : "立即授权" }}
@@ -65,7 +65,7 @@
     <div class="des">
       <p class="des-title">* 规则</p>
       <p>1、守擂数量：无门槛</p>
-      <p>2、守擂时间：{{this.guarDuration}}秒</p>
+      <p>2、守擂时间：{{ this.guarDuration }}秒</p>
       <p>
         3、奖励发放时间：守擂结束后，有人发起守擂随即自动发放奖励至余额，同时新开下一轮守擂
       </p>
@@ -150,7 +150,7 @@ export default {
       guardTime: null, //擂台时间
       guardAccount: "0x0000000000000000000000000000000000000000", //擂台账户
       timer: null, //时间对象
-      countD: "", //倒计时
+      countD: 0, //倒计时
       joinNumber: "", //守擂数量
       newTokenCode: "", //添加合约地址
       allowanceResp: 0, //授权数量
@@ -197,8 +197,10 @@ export default {
   },
   methods: {
     async init() {
+      this.initGuContract()
       this.getNetwork();
     },
+
     async submit() {
       if (this.loadingShow) {
         return false;
@@ -234,6 +236,7 @@ export default {
         this.loading = false;
       }
     },
+
     async handleTokenCode() {
       if (!this.newTokenCode) return this.$toast("合约地址不能为空");
       var re = new RegExp(/0x[a-f0-9]{40}/);
@@ -262,17 +265,38 @@ export default {
     //授权
     async approve() {
       const approveNum = this.approveNum ?? this.joinNumber;
-
       try {
         await this.erContract.approve(
           this.guardAddress,
           ethers.utils.parseUnits(approveNum + "", this.decimal)
         );
         this.loadingShow = true;
+        this.approveCountDown()
+        // this.approvalListener();
       } catch (error) {
         console.log("授权失败");
         this.$toast(error.message);
       }
+    },
+
+    //轮询查询授权
+    approveCountDown(){
+    
+      if(!this.authorization && this.loadingShow){
+        this.getCurrentTokenCodeContract()
+        setTimeout(this.approveCountDown,1000)
+      }else{
+        this.loadingShow=false
+      }
+      
+    },
+
+     //获取授权数量
+    async allowanceNum(){
+      const [allowanceErr, allowanceResp] = await this.to(
+        this.erContract.allowance(this.myAddress, this.guardAddress)
+      );
+      this.doResponse(allowanceErr, allowanceResp, "allowanceResp", this.decimal);
     },
 
     //代币合约
@@ -284,55 +308,65 @@ export default {
       );
       this.erContract = contract;
       let [, decimal] = await this.to(contract.decimals());
-      let [err, balance] = await this.to(contract.balanceOf(this.myAddress));
+      let [, balance] = await this.to(contract.balanceOf(this.myAddress));
       let [, gubalance] = await this.to(contract.balanceOf(this.guardAddress));
       this.decimal = decimal;
-      this.doResponse(err, balance, "balance", decimal);
+
+      this.balance=ethers.utils.formatUnits(balance, decimal);
+      // this.doResponse(err, balance, "balance", decimal);
       this.gubalance = ethers.utils.formatUnits(gubalance, decimal);
-      //获取授权数量
-      const [allowanceErr, allowanceResp] = await this.to(
-        this.erContract.allowance(this.myAddress, this.guardAddress)
-      );
-      this.doResponse(allowanceErr, allowanceResp, "allowanceResp", decimal);
+      this.allowanceNum()
       //获取奖金池
       this.guardContract();
+    },
 
-      contract.removeListener("Approval");
+
+
+    // 擂台合约初始化
+    initGuContract(){
+      const contract = new ethers.Contract(this.guardAddress, abi, this.signer);
+      this.guContract = contract;
+      this.joinListener();
+    },
+
+    //擂台奖金池
+    async guardContract() {
+      if(!this.guContract) return false;
+      let [err, duration] = await this.to(this.guContract.duration());
+      let [latesterr, latest] = await this.to(
+        this.guContract.latest(this.currentTokenCode.contract_origin)
+      );
+      this.doResponse(err, duration, "guarDuration");
+      this.doResponse(latesterr, latest.time, "guardTime");
+      this.guardAccount = latest.account;
+      if (this.guardTime > 0) {
+        this.countTime();
+      }
+    },
+
+    // 监听授权
+    approvalListener() {
       // 使用签名器地址作为事件触发者进行过滤
-      let filterApproval = contract.filters.Approval(this.myAddress);
+      let filterApproval = this.erContract.filters.Approval(this.myAddress);
       // 监听授权
-      contract.on(filterApproval, (owner, spender, value, event) => {
-        console.log('授权');
+      this.erContract.on(filterApproval, (owner, spender, value, event) => {
+        console.log("授权");
         console.log(owner, spender, value, event);
         this.$toast("授权成功");
         this.loadingShow = false;
         this.getCurrentTokenCodeContract();
       });
     },
-    //擂台合约
-    async guardContract() {
-      const contract = new ethers.Contract(this.guardAddress, abi, this.signer);
-      this.guContract = contract;
-      let [err, duration] = await this.to(contract.duration());
-      let [latesterr, latest] = await this.to(
-        contract.latest(this.currentTokenCode.contract_origin)
-      );
-      this.doResponse(err, duration, "guarDuration");
-      this.doResponse(latesterr, latest.time, "guardTime");
-      this.guardAccount = latest.account;
 
-      contract.removeListener("Join");
-
-      contract.on("Join", (owner, spender, value, event) => {
-        console.log('参与擂台');
+    //参与擂台监听
+    joinListener() {
+      this.guContract.on("Join", (owner, spender, value, event) => {
+        console.log("参与擂台");
         console.log(owner, spender, value, event);
-        this.guardContract();
+        this.getCurrentTokenCodeContract();
       });
-
-      if (this.guardTime > 0) {
-        this.countTime();
-      }
     },
+    
 
     //倒计时
     countTime() {

@@ -1,26 +1,58 @@
 <template>
   <div id="dotloader" class="center">
-    <div class="part" v-for="item in 80" :key="item" :style="{transform:`translate(120px,120px) rotate(${item * 5}deg) translateX(120px) rotate(90deg)`}"></div>
+    <div
+      class="part"
+      v-for="item in count"
+      :key="item"
+      :class="{ active: (count - item) * proportion < time }"
+      :style="{
+        transform: `translate(120px,120px) rotate(${
+          item * avd - 90
+        }deg) translateX(120px) rotate(90deg)`,
+      }"
+    ></div>
   </div>
 </template>
 <script>
 export default {
-  data() {
-    return {};
+  props: {
+    r: {
+      type: Number,
+      default: 120,
+    },
+    count: {
+      type: Number,
+      default: 200,
+    },
+    time: {
+      type: Number,
+      default: 30,
+    },
   },
-  components: {},
-  mounted() {
-    // this.init();
+  created() {
+    this.init();
+  },
+  data() {
+    return {
+      avd: 0,
+      proportion: 0,
+    };
   },
   methods: {
-  }
+    init() {
+      // const d = 2 * Math.PI * this.r
+      // 每一个BOX对应的角度;
+      var avd = 360 / this.count;
+      //每一个BOX对应的弧度;
+      // var ahd = avd*Math.PI/180;
+      this.avd = avd;
+      this.proportion = 60 / this.count;
+    },
+  },
 };
 </script>
 
 <style scoped lang="scss">
-/* input variables*/
-/* calculated */
-
 #dotloader {
   width: 100%;
   height: 100%;
@@ -36,45 +68,21 @@ export default {
   transform-origin: 50% 50%;
 }
 .part::before {
-  width: 10px;
-  height: 40px;
-  background: #ccc;
+  width: 4px;
+  height: 20px;
+  background: #0A2054;
   display: block;
   content: "";
   float: left;
   position: absolute;
   left: -10px;
+  transition: all 0.5;
 }
-// .part:nth-child(1) {
-//   transform: translate(240px, 240px) rotate(-60deg) translateX(60px)
-//     rotate(90deg);
-// }
-
-// .part:nth-child(2) {
-//   transform: translate(480px, 480px) rotate(-30deg) translateX(120px)
-//     rotate(90deg);
-// }
-
-.part:nth-child(3) {
- 
-  transform: translate(480px,480px) rotate(0deg) translateX(120px)
-    rotate(90deg);
-  
-}
-.part:nth-child(4) {
- 
-  transform: translate(480px,480px) rotate(30deg) translateX(120px)
-    rotate(90deg);
-  
+.active::before {
+  background: #00ffdf;
+  transition: all 0.5;
 }
 
-
-.part:nth-child(5) {
- 
-  transform: translate(480px,480px) rotate(60deg) translateX(120px)
-    rotate(90deg);
-
-}
 
 
 .center {
