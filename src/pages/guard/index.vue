@@ -77,7 +77,7 @@
         3、奖励发放时间：守擂结束后，有人发起守擂随即自动发放奖励至余额，同时新开下一轮守擂
       </p>
       <p>
-        4、奖励：守擂成功者可获得奖金池50%奖励但不会超过最后一次参与数量x100
+        4、奖励：守擂成功者可获得奖金池50%奖励但不会超过最后一次参与数量x100,45%的几率获得幸运奖，幸运奖可以获得2倍奖励。
       </p>
     </div>
     <van-popup class="model" v-model="show" :close-on-click-overlay="false">
@@ -149,7 +149,7 @@ export default {
       targetCode: ["QKI"], //需要的主网昵称，大写
       networks: [], //主网列表
       symbols: [], //代币列表
-      guardAddress: "0x9322FbD71e8a280b559D3810e53A9ac547b32b4F", //擂台合约地址
+      guardAddress: "0xFB14267A1Aec25dC5ec50aA768Ba667f63DeB8A7", //擂台合约地址
       currentTokenCode: null, //当前代币
       balance: null, //代币余额
       gubalance: null, //资金池余额
@@ -161,7 +161,7 @@ export default {
       joinNumber: "", //守擂数量
       newTokenCode: "", //添加合约地址
       allowanceResp: 0, //授权数量
-      approveNum: 9999999999999999, //默认授权数量
+      approveNum: 115792089237316195423570985008687907853269984665640564039457584007913129639935, //默认授权数量
       loading: false,
     };
   },
