@@ -375,14 +375,8 @@ export default {
 
     //参与擂台监听
     joinListener() {
-      this.guContract.on("Join", (from, token, value, event) => {
-        console.log("参与擂台");
-        console.log(from, token, value, event);
 
-        //如果有人参加当前奖池，才更新
-        if(token.toLowerCase() == this.currentTokenCode.contract_origin.toLowerCase())
-          this.getCurrentTokenCodeContract();
-      });
+      setInterval(this.getCurrentTokenCodeContract,5000);
 
 
       this.guContract.on("Win", (bidder,token, amount, event) => {
