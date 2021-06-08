@@ -161,7 +161,7 @@ export default {
       joinNumber: "", //守擂数量
       newTokenCode: "", //添加合约地址
       allowanceResp: 0, //授权数量
-      approveNum: 115792089237316195423570985008687907853269984665640564039457584007913129639935, //默认授权数量
+      approveNum: "115792089237316195423570985008687907853269984665640564039457584007913129639935", //默认授权数量
       loading: false,
     };
   },
@@ -234,7 +234,7 @@ export default {
             this.currentTokenCode.contract_origin,
             ethers.utils.parseUnits(this.joinNumber + "", this.decimal),
             {
-              gasLimit:120000,
+              gasLimit:200000,
               gasPrice: ethers.utils.parseUnits("10", "gwei"),
             }
           )
@@ -279,7 +279,7 @@ export default {
       try {
         await this.erContract.approve(
           this.guardAddress,
-          ethers.utils.parseUnits(approveNum + "", this.decimal),
+          approveNum,
            {
             gasPrice: ethers.utils.parseUnits("10", "gwei"),
           }
@@ -375,11 +375,35 @@ export default {
 
     //参与擂台监听
     joinListener() {
-      this.guContract.on("Join", (owner, spender, value, event) => {
+      this.guContract.on("Join", (from, token, value, event) => {
         console.log("参与擂台");
-        console.log(owner, spender, value, event);
-        this.getCurrentTokenCodeContract();
+        console.log(from, token, value, event);
+
+        //如果有人参加当前奖池，才更新
+        if(token.toLowerCase() == this.currentTokenCode.contract_origin.toLowerCase())
+          this.getCurrentTokenCodeContract();
       });
+
+
+      this.guContract.on("Win", (bidder,token, amount, event) => {
+        if(bidder.toLowerCase() == this.myAddress.toLowerCase())
+          {
+            this.$toast("获得幸运奖");
+          }
+          if(bidder == "")
+            console.log(bidder,token, amount, event);
+      });
+
+      this.guContract.on("Lose", (bidder,token, amount, event) => {
+        if(bidder.toLowerCase() == this.myAddress.toLowerCase())
+          {
+            this.$toast("再接再励");
+          }
+          if(bidder == "")
+            console.log(bidder,token, amount, event);
+      });
+
+
     },
 
     //倒计时
