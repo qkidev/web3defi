@@ -6,12 +6,12 @@
     </div>
     <br />
     <div
-      v-if="result!=''"
+      v-if="result != ''"
       class="alert"
-      :class="result == form.signingAddress ? 'success' : 'error'"
+      :class="result.toUpperCase() == form.signingAddress.toUpperCase() ? 'success' : 'error'"
     >
       {{
-        result == form.signingAddress
+        result.toUpperCase() == form.signingAddress.toUpperCase()
           ? "消息签名已验证。"
           : "对不起！消息签名验证失败"
       }}
@@ -67,18 +67,19 @@ import "vant/lib/field/style";
 import "vant/lib/form/style";
 import "vant/lib/button/style";
 import { Form, Field, Button, Toast } from "vant";
-import { ethers } from "ethers";
+import Web3 from "web3";
 export default {
   name: "VerifyMessage",
   data() {
     return {
       resForm: {},
       result: "",
+      web3:null,
       form: {
         signature: "",
         signingAddress: "",
         message: "",
-      }
+      },
     };
   },
   components: {
@@ -88,6 +89,11 @@ export default {
   },
   created() {
     this.resForm = Object.assign({}, this.form);
+
+    if (window.ethereum) {
+      window.ethereum.enable();
+      this.web3 = new Web3(window.ethereum);
+    }
   },
   methods: {
     // 提交校验不通过
@@ -95,12 +101,10 @@ export default {
       Toast(errors[0].message);
     },
     async submitVerify() {
-      const { utils } = ethers;
-      let signingAddress = await utils.verifyMessage(
+      this.result = await this.web3.eth.personal.ecRecover(
         this.form.message,
         this.form.signature
       );
-      this.result = signingAddress;
     },
     resetForm() {
       this.form = this.resForm;
@@ -146,6 +150,9 @@ export default {
   padding: 0 15px;
   transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
   width: 100%;
+  outline: none;
+  -webkit-appearance: none; /*去除系统默认的样式*/
+	-webkit-tap-highlight-color: rgba(0, 0, 0, 0); /* 点击高亮的颜色*/
   &:focus {
     border-color: #409eff;
     outline: 0;

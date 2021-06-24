@@ -24,10 +24,8 @@
         </div>
         <div class="form-item">
           <p class="lable">地址</p>
-          <van-field class="field" v-model="form.signingAddress">
-            <!-- <template #button>
-            <van-button native-type="button" size="small" type="primary">发送验证码</van-button>
-          </template> -->
+          <van-field class="field" v-model="form.signingAddress" placeholder="输入签名地址" :rules="[{ required: true, message: '输入签名消息' }]">
+
           </van-field>
         </div>
 
@@ -36,7 +34,7 @@
           <van-field class="field" v-model="form.signature" />
         </div>
         <div class="form-item">
-          <van-button type="info" native-type="submit">验 证</van-button>
+          <van-button type="info" native-type="submit">签 名</van-button>
           <van-button @click="resetForm" native-type="button">重 置</van-button>
         </div>
       </div>
@@ -49,14 +47,14 @@ import "vant/lib/field/style";
 import "vant/lib/form/style";
 import "vant/lib/button/style";
 import { Form, Field, Button, Toast } from "vant";
-import { ethers } from "ethers";
+import Web3 from "web3";
 export default {
   name: "VerifyMessage",
   data() {
     return {
       resForm: {},
       result: "",
-      signer: null,
+      web3: null,
       form: {
         signature: "",
         signingAddress: "",
@@ -73,11 +71,11 @@ export default {
     this.resForm = Object.assign({}, this.form);
     if (window.ethereum) {
       window.ethereum.enable();
-      window.customHttpProvider = new ethers.providers.Web3Provider(
-        window.ethereum
-      );
+      this.web3 = new Web3(window.ethereum);
+      this.web3.eth.getAccounts().then((res) => {
+        this.form.signingAddress = res[0];
+      });
     }
-    this.signer = window.customHttpProvider.getSigner();
   },
   methods: {
     // 提交校验不通过
@@ -85,9 +83,10 @@ export default {
       Toast(errors[0].message);
     },
     async submitSign() {
-      this.form.signingAddress = await this.signer.getAddress();
-      let flatSig = await this.signer.signMessage(this.form.message);
-      this.form.signature = flatSig;
+      this.form.signature = await this.web3.eth.personal.sign(
+        this.web3.utils.utf8ToHex(this.form.message),
+        this.form.signingAddress
+      );
     },
     resetForm() {
       this.form = this.resForm;
@@ -133,6 +132,9 @@ export default {
   padding: 0 15px;
   transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
   width: 100%;
+  outline: none;
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   &:focus {
     border-color: #409eff;
     outline: 0;
