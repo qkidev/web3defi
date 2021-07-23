@@ -51,7 +51,8 @@ export default {
       toCoin: "",
       fromAmount: "",
       toAmount: "",
-      loading: false
+      loading: false,
+      gasPrice: '10',
     };
   },
   mixins: [initEth],
@@ -97,7 +98,7 @@ export default {
       contract
         .withdraw(amount, {
           gasLimit: 80000,
-          gasPrice: ethers.utils.parseUnits("100", "gwei")
+          gasPrice: ethers.utils.parseUnits(this.gasPrice, "gwei")
         })
         .then(
           data => {
