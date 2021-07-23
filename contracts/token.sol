@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: SimPL-2.0
-pragma solidity  ^0.7.5;
+pragma solidity  =0.8.6;
 
 /**
  * Math operations with safety checks
@@ -65,15 +65,15 @@ contract token is SafeMath{
         name = tokenName;                                   // Set the name for display purposes
         symbol = tokenSymbol;                               // Set the symbol for display purposes
         decimals = decimalUnits;                            // Amount of decimals for display purposes
-        owner = msg.sender;
+        owner = payable(msg.sender);
     }
 
     /* Send coins */
     function transfer(address _to, uint256 _value) public returns (bool success) {
-        if (_to == address(0)) revert("0x0");                               // Prevent transfer to 0x0 address. Use burn() instead
-		if (_value <= 0) revert("value"); 
-        if (balanceOf[msg.sender] < _value) revert("no_enough");           // Check if the sender has enough
-        if (balanceOf[_to] + _value < balanceOf[_to]) revert("overflows"); // Check for overflows
+        require(_to != address(0));                               // Prevent transfer to 0x0 address. Use burn() instead
+		require(_value > 0);
+        require(balanceOf[msg.sender] >= _value,"no enough");           // Check if the sender has enough
+        require (balanceOf[_to] + _value >= balanceOf[_to],"overflows"); // Check for overflows
         balanceOf[msg.sender] = SafeMath.safeSub(balanceOf[msg.sender], _value);                     // Subtract from the sender
         balanceOf[_to] = SafeMath.safeAdd(balanceOf[_to], _value);                            // Add the same to the recipient
         emit Transfer(msg.sender, _to, _value);                   // Notify anyone listening that this transfer took place
@@ -83,7 +83,6 @@ contract token is SafeMath{
     /* Allow another contract to spend some tokens in your behalf */
     function approve(address _spender, uint256 _value) public
         returns (bool success) {
-		if (_value <= 0) revert(); 
         allowance[msg.sender][_spender] = _value;
         return true;
     }
@@ -91,42 +90,40 @@ contract token is SafeMath{
 
     /* A contract attempts to get the coins */
     function transferFrom(address _from, address _to, uint256 _value) public returns (bool success)  {
-        if (_to == address(0)) revert();                                // Prevent transfer to 0x0 address. Use burn() instead
-		if (_value <= 0) revert(); 
-        if (balanceOf[_from] < _value) revert();                 // Check if the sender has enough
-        if (balanceOf[_to] + _value < balanceOf[_to]) revert();  // Check for overflows
-        if (_value > allowance[_from][msg.sender]) revert();     // Check allowance
+        require(_to != address(0));                                // Prevent transfer to 0x0 address. Use burn() instead
+		require(_value > 0);
+        require(balanceOf[_from] >= _value,"no enough");                 // Check if the sender has enough
+        require(balanceOf[_to] + _value >= balanceOf[_to],"overflows");  // Check for overflows
+        require(_value <= allowance[_from][msg.sender],"Check allowance");     // Check allowance
         balanceOf[_from] = SafeMath.safeSub(balanceOf[_from], _value);                           // Subtract from the sender
         balanceOf[_to] = SafeMath.safeAdd(balanceOf[_to], _value);                             // Add the same to the recipient
         allowance[_from][msg.sender] = SafeMath.safeSub(allowance[_from][msg.sender], _value);
-        Transfer(_from, _to, _value);
+        emit Transfer(_from, _to, _value);
         return true;
     }
 
     function burn(uint256 _value) public returns (bool success)  {
-        if (balanceOf[msg.sender] < _value) revert();            // Check if the sender has enough
-		if (_value <= 0) revert(); 
+        require(balanceOf[msg.sender] >= _value,"no enough");            // Check if the sender has enough
         balanceOf[msg.sender] = SafeMath.safeSub(balanceOf[msg.sender], _value);                      // Subtract from the sender
         totalSupply = SafeMath.safeSub(totalSupply,_value);                                // Updates totalSupply
-        Burn(msg.sender, _value);
+        emit Burn(msg.sender, _value);
+        emit Transfer(msg.sender, address(0), _value);
         return true;
     }
 	
 	function freeze(uint256 _value) public returns (bool success)  {
-        if (balanceOf[msg.sender] < _value) revert();            // Check if the sender has enough
-		if (_value <= 0) revert(); 
+        require(balanceOf[msg.sender] >= _value);            // Check if the sender has enough
         balanceOf[msg.sender] = SafeMath.safeSub(balanceOf[msg.sender], _value);                      // Subtract from the sender
         freezeOf[msg.sender] = SafeMath.safeAdd(freezeOf[msg.sender], _value);                                // Updates totalSupply
-        Freeze(msg.sender, _value);
+        emit Freeze(msg.sender, _value);
         return true;
     }
 	
 	function unfreeze(uint256 _value) public returns (bool success) {
-        if (freezeOf[msg.sender] < _value) revert();            // Check if the sender has enough
-		if (_value <= 0) revert(); 
+        require(freezeOf[msg.sender] > _value);            // Check if the sender has enough
         freezeOf[msg.sender] = SafeMath.safeSub(freezeOf[msg.sender], _value);                      // Subtract from the sender
 		balanceOf[msg.sender] = SafeMath.safeAdd(balanceOf[msg.sender], _value);
-        Unfreeze(msg.sender, _value);
+        emit Unfreeze(msg.sender, _value);
         return true;
     }
 	

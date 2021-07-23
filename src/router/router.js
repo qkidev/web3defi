@@ -15,6 +15,7 @@ import CctExchangeHome from '@/pages/cctExchange/index';
 import CctExchange from '@/pages/cctExchange/exchange';
 import CctExchangeDesc from '@/pages/cctExchange/desc';
 import totalBurn from '@/pages/totalBurn';
+import guard from '@/pages/guard';
 
 Vue.use(Router);
 
@@ -92,6 +93,10 @@ export default new Router({
     path: '/totalBurn',
     name: 'totalBurn',
     component: totalBurn
+  },{
+    path: '/guard',
+    name: 'guard',
+    component: guard
   }
   ]
 })

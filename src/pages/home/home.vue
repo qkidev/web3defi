@@ -124,6 +124,12 @@ export default {
           title: "WCCT",
           desc: "把cct包裹成标准的token，用于交易所兼容",
           routeName: 'cctExchangeHome'
+        },
+        {
+          icon: require("../../assets/temp/9.png"),
+          title: "一站到底",
+          desc: "擂台守卫一站到底",
+          routeName: 'guard'
         }
       ];
     },
