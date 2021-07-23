@@ -41,7 +41,8 @@ export default {
       balance: 0,
       isAirdrop: 0,
       airdropContract: null,
-      contractAddress: '0xfDcf9C3e9f0592C1828b43f40DC99d5F0238D698'
+      contractAddress: '0xfDcf9C3e9f0592C1828b43f40DC99d5F0238D698',
+      gasPrice: '10'
     };
   },
   mixins: [initEth],
@@ -84,14 +85,14 @@ export default {
       }
       this.loading = true;
       const gasLimit = await this.getEstimateGas(() =>
-          this.airdropContract.estimateGas.getairdrop({gasPrice: ethers.utils.parseUnits("100", "gwei")})
+          this.airdropContract.estimateGas.getairdrop({gasPrice: ethers.utils.parseUnits(this.gasPrice, "gwei")})
         );
         if (gasLimit === 0) {
           return;
         }
       let [error, res] = await this.to(this.airdropContract.getairdrop({
           gasLimit,
-          gasPrice: ethers.utils.parseUnits("2", "gwei"),
+          gasPrice: ethers.utils.parseUnits(this.gasPrice, "gwei"),
         }))
        this.loading = false;
       if (this.doResponse(error, res)) {

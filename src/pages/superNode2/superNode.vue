@@ -464,6 +464,7 @@ export default {
       rewardInterval: 0,
       nextTime: '', // 下次分红时间
       canReward: false,
+      gasPrice: '10',
     };
   },
   async created() {
@@ -723,19 +724,19 @@ export default {
           value: amount,
         };
         const gasLimit = await this.getEstimateGas(() =>
-          this.signer.estimateGas(tx, {gasPrice: ethers.utils.parseUnits("2", "gwei")})
+          this.signer.estimateGas(tx, {gasPrice: ethers.utils.parseUnits(this.gasPrice, "gwei")})
         );
         if (gasLimit === 0) {
           return;
         }
         tx = Object.assign(tx, {
           gasLimit: Number(gasLimit),
-          gasPrice: ethers.utils.parseUnits("2", "gwei"),
+          gasPrice: ethers.utils.parseUnits(this.gasPrice, "gwei"),
         });
         response = await this.to(this.signer.sendTransaction(tx));
       } else if (type === "upgrade") {
         const gasLimit = await this.getEstimateGas(() =>
-          this.contract.estimateGas.upgrade(amount, {gasPrice: ethers.utils.parseUnits("2", "gwei")})
+          this.contract.estimateGas.upgrade(amount, {gasPrice: ethers.utils.parseUnits(this.gasPrice, "gwei")})
         );
         if (gasLimit === 0) {
           return;
@@ -743,12 +744,12 @@ export default {
         response = await this.to(
           this.contract.upgrade(amount, {
             gasLimit,
-            gasPrice: ethers.utils.parseUnits("2", "gwei"),
+            gasPrice: ethers.utils.parseUnits(this.gasPrice, "gwei"),
           })
         );
       } else if (type === "withdraw") {
         const gasLimit = await this.getEstimateGas(() =>
-          this.contract.estimateGas.withdraw(amount,{gasPrice: ethers.utils.parseUnits("2", "gwei")})
+          this.contract.estimateGas.withdraw(amount,{gasPrice: ethers.utils.parseUnits(this.gasPrice, "gwei")})
         );
         if (gasLimit === 0) {
           return;
@@ -756,7 +757,7 @@ export default {
         response = await this.to(
           this.contract.withdraw(amount, {
             gasLimit,
-            gasPrice: ethers.utils.parseUnits("2", "gwei"),
+            gasPrice: ethers.utils.parseUnits(this.gasPrice, "gwei"),
           })
         );
       }
@@ -824,7 +825,7 @@ export default {
     // 领取分红
     async getAward() {
       const gasLimit = await this.getEstimateGas(() =>
-          this.rewardContract.estimateGas.reward({gasPrice: ethers.utils.parseUnits("2", "gwei"),})
+          this.rewardContract.estimateGas.reward({gasPrice: ethers.utils.parseUnits(this.gasPrice, "gwei"),})
         );
         if (gasLimit === 0) {
           return;
@@ -832,7 +833,7 @@ export default {
       let [err1, res] = await this.to(
         this.rewardContract.reward({
           gasLimit,
-          gasPrice: ethers.utils.parseUnits("2", "gwei"),
+          gasPrice: ethers.utils.parseUnits(this.gasPrice, "gwei"),
         })
       );
       if(err1 == null){
