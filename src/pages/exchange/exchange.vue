@@ -52,7 +52,7 @@ export default {
       fromAmount: "",
       toAmount: "",
       loading: false,
-      gasPrice: '10',
+      gasPrice: '100',
     };
   },
   mixins: [initEth],

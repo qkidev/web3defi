@@ -163,6 +163,7 @@ export default {
       allowanceResp: 0, //授权数量
       approveNum: "115792089237316195423570985008687907853269984665640564039457584007913129639935", //默认授权数量
       loading: false,
+      gasPrice: '100'
     };
   },
   mixins: [initEth],
@@ -235,7 +236,7 @@ export default {
             ethers.utils.parseUnits(this.joinNumber + "", this.decimal),
             {
               gasLimit:200000,
-              gasPrice: ethers.utils.parseUnits("10", "gwei"),
+              gasPrice: ethers.utils.parseUnits(this.gasPrice, "gwei"),
             }
           )
         );
@@ -281,7 +282,7 @@ export default {
           this.guardAddress,
           approveNum,
            {
-            gasPrice: ethers.utils.parseUnits("10", "gwei"),
+            gasPrice: ethers.utils.parseUnits(this.gasPrice, "gwei"),
           }
         );
         this.loadingShow = true;

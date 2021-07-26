@@ -66,7 +66,7 @@ export default {
       amount: '',
       balance: 0.00,
       decimal: 8,
-      gasPrice: '10',
+      gasPrice: '100',
       show: false,
       loadingModel: false,
       submitflag: false,

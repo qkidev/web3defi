@@ -464,7 +464,7 @@ export default {
       rewardInterval: 0,
       nextTime: '', // 下次分红时间
       canReward: false,
-      gasPrice: '10',
+      gasPrice: '100',
     };
   },
   async created() {
