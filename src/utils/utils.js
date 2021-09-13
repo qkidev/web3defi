@@ -128,12 +128,23 @@ const initEth = {
         }
         return true;
       } else {
-        if (error.code == "INSUFFICIENT_FUNDS") {
-          Toast("矿工费不足");
-        } else if (error.code == 4001) {
-          Toast("用户取消");
+        if (error.code === 'UNPREDICTABLE_GAS_LIMIT') {
+          Toast('错误:' + error.error.message)
+        } else if (error.code === 'INSUFFICIENT_FUNDS') {
+          Toast('矿工费不足')
+        } else if (error.code === 4001 || error === 'cancelled') {
+          Toast('交易取消')
         } else {
-          Toast("错误代码:" + error.code);
+          if (error.data.message.indexOf('gas') > 0) {
+            Toast('矿工费不足')
+          } else if (error.data.message.indexOf('RPC') > 0) {
+            Toast('节点异常，请切换节点')
+          } else if (error.data.message.indexOf('reverted') > 0) {
+            console.log('=====', error.data, error.data.message)
+            Toast('错误:' + error.data.message)
+          } else {
+            Toast('异常')
+          }
         }
         return false;
       }
