@@ -560,8 +560,6 @@ export default {
       this.tempPool = this.currPool;
       this[keyName] = true;
     },
-    async init(){
-    },
     openModel(keyName) {
       if (this.next_pool === ethers.constants.AddressZero) {
         if (keyName === "withDrawShow") {
