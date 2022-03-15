@@ -52,7 +52,7 @@ export default {
       fromAmount: "",
       toAmount: "",
       loading: false,
-      gasPrice: '100',
+      gasPrice: '300',
     };
   },
   mixins: [initEth],
@@ -61,10 +61,17 @@ export default {
     this.from = this.$route.params.from;
     this.toCoin = this.$route.params.to;
     this.contractAddress = this.$route.params.contractAddress;
+    this.init();
   },
   methods: {
     goBack() {
       this.$router.go(-1);
+    },
+    async init(){
+            let _gasPrice = await this.provider.getGasPrice();
+      _gasPrice = ethers.utils.formatUnits(_gasPrice, "gwei")
+      if (_gasPrice > this.min_gasprice)
+      this.min_gasprice = _gasPrice;//如果网络当前矿工费高于预设最小值，使用当前值
     },
     submit() {
       if (this.loading) {
