@@ -42,7 +42,6 @@ export default {
       isAirdrop: 0,
       airdropContract: null,
       contractAddress: '0xfDcf9C3e9f0592C1828b43f40DC99d5F0238D698',
-      gasPrice: '100'
     };
   },
   mixins: [initEth],

@@ -66,7 +66,6 @@ export default {
       amount: '',
       balance: 0.00,
       decimal: 8,
-      gasPrice: '300',
       show: false,
       loadingModel: false,
       submitflag: false,
@@ -93,7 +92,6 @@ export default {
     if (this.myAddress != ''){
       this.initContract()
     }
-    this.init();
   },
   methods: {
     async initContract() {
@@ -104,12 +102,6 @@ export default {
         this.wcctContract = new ethers.Contract(this.wcctAddress, WCCT_ABI, this.signer);
       }
       await this.getBalance();
-    },
-    async init(){
-            let _gasPrice = await this.provider.getGasPrice();
-      _gasPrice = ethers.utils.formatUnits(_gasPrice, "gwei")
-      if (_gasPrice > this.min_gasprice)
-      this.min_gasprice = _gasPrice;//如果网络当前矿工费高于预设最小值，使用当前值
     },
     async getBalance() {
       let contract;

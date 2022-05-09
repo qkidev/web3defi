@@ -464,7 +464,6 @@ export default {
       rewardInterval: 0,
       nextTime: '', // 下次分红时间
       canReward: false,
-      gasPrice: '300',
     };
   },
   async created() {
@@ -596,10 +595,7 @@ export default {
         this.getNextPoolAddress();
       }
       await this.getRewardInit();
-      let _gasPrice = await this.provider.getGasPrice();
-      _gasPrice = ethers.utils.formatUnits(_gasPrice, "gwei")
-      if (_gasPrice > this.min_gasprice)
-      this.min_gasprice = _gasPrice;//如果网络当前矿工费高于预设最小值，使用当前值
+      
     },
     // 初始化合约
     getContract(address) {
