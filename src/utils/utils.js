@@ -7,7 +7,8 @@ const initEth = {
       provider: {},
       signer: {},
       chainId: 0,
-      myAddress: ''
+      myAddress: '',
+      gasPrice: '300'
     }
   },
   async created() {
@@ -48,6 +49,9 @@ const initEth = {
 
         this.provider = customHttpProvider;
         this.signer = customHttpProvider.getSigner();
+        let _gasPrice = await this.provider.getGasPrice();
+        _gasPrice = ethers.utils.formatUnits(_gasPrice, "gwei")
+        this.gasPrice = _gasPrice;//如果网络当前矿工费高于预设最小值，使用当前值
       }
     } else {
       const privateKey = window.getPrivateKey()
