@@ -650,7 +650,7 @@ export default {
     async getNextPoolAddress() {
       let [error, res] = await this.to(this.contract.next_pool());
       if (this.doResponse(error, res)) {
-        if (res == ethers.utils.AddressZero) {
+        if (res == ethers.constants.AddressZero) {
           this.next_pool = res;
         } else {
           this.next_pool = res;

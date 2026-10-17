@@ -1,0 +1,12 @@
+allowBuilds:
+  '@parcel/watcher': true
+  bufferutil: true
+  core-js: false
+  es5-ext: false
+  keccak: true
+  secp256k1: true
+  utf-8-validate: true
+  web3: false
+  web3-bzz: false
+  web3-shh: false
+  yorkie: false
