@@ -84,18 +84,6 @@ export default {
           routeName: 'dappHome'
         },
         {
-          icon: require("../../assets/temp/2.png"),
-          title: "一键发布通证",
-          desc: "输入通证总量、通证名称、通证精度，通证缩写即可发布",
-          routeName: 'token'
-        },
-        {
-          icon: require("../../assets/temp/3.png"),
-          title: "超级节点",
-          desc: "基于合约部署的超级节点管理工具",
-          routeName: 'superNode'
-        },
-        {
           icon: require("../../assets/temp/4.jpg"),
           title: "超级节点2.0",
           desc: "基于合约部署的超级节点管理工具",
@@ -115,7 +103,7 @@ export default {
         },
         {
           icon: require("../../assets/temp/7.png"),
-          title: "CCT消耗",
+          title: "CCT销毁",
           desc: "流通销毁CCT数量",
           routeName: 'totalBurn'
         },
@@ -124,12 +112,6 @@ export default {
           title: "WCCT",
           desc: "把cct包裹成标准的token，用于交易所兼容",
           routeName: 'cctExchangeHome'
-        },
-        {
-          icon: require("../../assets/temp/9.png"),
-          title: "一站到底",
-          desc: "擂台守卫一站到底",
-          routeName: 'guard'
         }
       ];
     },
