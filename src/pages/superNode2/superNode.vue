@@ -275,9 +275,9 @@
                 'flex_h_center_center',
                 (tempPool && tempPool.amount) === item.amount ? 'currItem' : '',
               ]"
-              v-for="(item, index) in poolList"
-              :key="index"
-              @click="tempPool = item"
+              v-for="item in poolList"
+              :key="item.address"
+              @click="selectPool(item)"
             >
               {{ item.amount }}U 星球池
               <img
@@ -322,8 +322,9 @@
                 'flex_h_center_center',
                 (tempPool && tempPool.amount) === item.amount ? 'currItem' : '',
               ]"
-              v-for="(item, index) in poolList"
-              :key="index"
+              v-for="item in poolList"
+              :key="item.address"
+              @click="selectPool(item)"
             >
               {{ item.amount }}U 星球池
               <img
@@ -439,6 +440,7 @@ export default {
       storeShow: false,
       togglePoolShow: false,
       startPoolShow: false,
+      poolLoading: false,
       type: 1,
       decimals: 18, //精度
       poolList: [
@@ -466,12 +468,10 @@ export default {
       canReward: false,
     };
   },
-  async created() {
+  created() {
     // 第一次进入默认10u星球池
-    this.getContract(this.poolList[1].address);
     this.currPool = this.poolList[1];
     this.tempPool = this.poolList[1];
-    await this.getDecimals();
   },
   mixins: [h5Copy, initEth, Decimal],
   computed: {
@@ -512,20 +512,10 @@ export default {
       return Number(earnQkiTotal.valueOf()).toFixed(8);
     },
     nextPoolAmount: function () {
-      let amount = 0;
-      const len = this.poolList.length;
-      for (let i = 0; i < len; i++) {
-        if (
-          this.poolList[i].address.toLowerCase() ==
-          this.currPool.address.toLowerCase()
-        ) {
-          if (i + 1 < len) {
-            amount = this.poolList[i + 1].amount;
-            break;
-          }
-        }
-      }
-      return amount;
+      const nextPool = this.poolList.find(
+        (pool) => pool.address.toLowerCase() === this.next_pool.toLowerCase()
+      );
+      return nextPool ? nextPool.amount : 0;
     },
     totalPrice: function () {
       // 池内qki数量
@@ -550,14 +540,48 @@ export default {
   },
   methods: {
     openTogglePool(keyName) {
-      if(keyName === "startPoolShow") {
-        if(Number(this.price) >= Number(this.withdrawPrice)) {
-          Toast('当前QKI价格高于可提现价格，不能进行存入操作，你可以切换到更高级的星球池进行操作');
-          return;
-        }
-      }
       this.tempPool = this.currPool;
       this[keyName] = true;
+    },
+    selectPool(pool) {
+      if (!this.poolLoading) {
+        this.tempPool = pool;
+      }
+    },
+    resetPoolData() {
+      this.balance = "0.00";
+      this.storeAmount = "0.00";
+      this.depositUsdtValue = 0;
+      this.withdrawtUsdtValue = 0;
+      this.contractQkiBalance = 0;
+      this.totalSupply = "0.00";
+      this.withdrawPrice = 0;
+      this.price = "0.00";
+      this.next_pool = ethers.constants.AddressZero;
+      this.withDrawValue = 0;
+    },
+    async switchPool(pool) {
+      if (!pool) {
+        Toast("请选择星球池");
+        return false;
+      }
+      if (this.poolLoading) {
+        Toast("星球池数据加载中，请稍候");
+        return false;
+      }
+
+      this.poolLoading = true;
+      try {
+        this.currPool = pool;
+        this.tempPool = pool;
+        this.resetPoolData();
+        this.getContract(pool.address);
+        await this.getDecimals();
+        await this.init();
+        return true;
+      } finally {
+        this.poolLoading = false;
+      }
     },
     openModel(keyName) {
       if (this.next_pool === ethers.constants.AddressZero) {
@@ -585,14 +609,14 @@ export default {
     },
     // 初始化数据
     async init() {
-      this.getTotalSupply();
+      await this.getTotalSupply();
       await this.getBalance();
       await this.getPrice();
       await this.getContractQkiBalance();
       await this.getWithdrawPrice();
-      if (this.balance !== 0) {
-        this.geUsers();
-        this.getNextPoolAddress();
+      if (Number(this.balance) !== 0) {
+        await this.geUsers();
+        await this.getNextPoolAddress();
       }
       await this.getRewardInit();
       
@@ -613,6 +637,9 @@ export default {
       let [error, address] = await this.to(this.signer.getAddress());
       if (error == null) {
         this.myAddress = address;
+        if (this.currPool) {
+          await this.switchPool(this.currPool);
+        }
       } else {
         console.log(error);
       }
@@ -650,13 +677,8 @@ export default {
     async getNextPoolAddress() {
       let [error, res] = await this.to(this.contract.next_pool());
       if (this.doResponse(error, res)) {
-        if (res == ethers.constants.AddressZero) {
-          this.next_pool = res;
-        } else {
-          this.next_pool = res;
-        }
+        this.next_pool = res;
       }
-      this.doResponse(error, res, "", this.decimals);
     },
     // 获得用户的累计存入数量
     async geUsers() {
@@ -699,11 +721,16 @@ export default {
 
     // 切换星球
     async togglePool() {
-      this.currPool = this.tempPool;
+      if (this.poolLoading) {
+        Toast("星球池数据加载中，请稍候");
+        return;
+      }
 
-      this.next_pool_amount = this.togglePoolShow = false;
-      this.getContract(this.currPool.address);
-      this.init();
+      const selectedPool = this.tempPool;
+      this.togglePoolShow = false;
+      if (!(await this.switchPool(selectedPool))) {
+        this.togglePoolShow = true;
+      }
     },
     // 处理工单
     async dealOrder(type, modelKeyName) {
@@ -763,26 +790,30 @@ export default {
         this.amount = "";
         Toast("提交请求成功，等待区块确认");
         await this.queryTransation(res.hash, () => {
+          let targetPool = this.currPool;
           if (type === "upgrade") {
-            for (let i = 0, len = this.poolList.length; i < len; i++) {
-              if (
-                this.next_pool.toLowerCase() ===
-                this.poolList[i].address.toLowerCase()
-              ) {
-                this.currPool = this.poolList[i];
-                this.tempPool = this.poolList[i];
-                this.getContract(this.poolList[i].address);
-              }
-            }
+            targetPool =
+              this.poolList.find(
+                (pool) =>
+                  pool.address.toLowerCase() === this.next_pool.toLowerCase()
+              ) || targetPool;
           }
-          this.init();
+          this.switchPool(targetPool);
         });
       }
     },
     // 开启星球
     async start() {
-      this.currPool = this.tempPool;
-      this.dealOrder("start", "startPoolShow");
+      if (!(await this.switchPool(this.tempPool))) {
+        return;
+      }
+      if (Number(this.price) >= Number(this.withdrawPrice)) {
+        Toast(
+          "当前QKI价格高于可提现价格，不能进行存入操作，请选择更高级的星球池"
+        );
+        return;
+      }
+      await this.dealOrder("start", "startPoolShow");
     },
     // 升级星球
     async upgrade() {
