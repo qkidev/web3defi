@@ -441,6 +441,7 @@ export default {
       togglePoolShow: false,
       startPoolShow: false,
       poolLoading: false,
+      poolRequestId: 0,
       type: 1,
       decimals: 18, //精度
       poolList: [
@@ -571,14 +572,18 @@ export default {
       }
 
       this.poolLoading = true;
+      const requestId = ++this.poolRequestId;
       try {
         this.currPool = pool;
         this.tempPool = pool;
         this.resetPoolData();
         this.getContract(pool.address);
-        await this.getDecimals();
-        await this.init();
-        return true;
+        return await this.init(
+          requestId,
+          this.contract,
+          this.contractAddress,
+          this.provider
+        );
       } finally {
         this.poolLoading = false;
       }
@@ -608,18 +613,59 @@ export default {
       this.$router.push("superNode2Rule");
     },
     // 初始化数据
-    async init() {
-      await this.getTotalSupply();
-      await this.getBalance();
-      await this.getPrice();
-      await this.getContractQkiBalance();
-      await this.getWithdrawPrice();
-      if (Number(this.balance) !== 0) {
-        await this.geUsers();
-        await this.getNextPoolAddress();
+    async init(requestId, contract, contractAddress, provider) {
+      const results = await Promise.all([
+        this.to(contract.decimals()),
+        this.to(contract.totalSupply()),
+        this.to(contract.balanceOf(this.myAddress)),
+        this.to(contract.getPrice()),
+        this.to(provider.getBalance(contractAddress)),
+        this.to(contract.withdrawPrice()),
+        this.to(contract.users(this.myAddress)),
+        this.to(contract.next_pool()),
+      ]);
+
+      if (requestId !== this.poolRequestId) {
+        return false;
       }
+
+      const failedResult = results.find(([error]) => error);
+      if (failedResult) {
+        this.doResponse(failedResult[0]);
+        return false;
+      }
+
+      const [
+        [, decimals],
+        [, totalSupply],
+        [, balance],
+        [, price],
+        [, contractBalance],
+        [, withdrawPrice],
+        [, user],
+        [, nextPool],
+      ] = results;
+
+      const decimalsValue = Number(decimals.toString());
+      this.decimals = decimalsValue;
+      this.totalSupply = ethers.utils.formatUnits(totalSupply, decimalsValue);
+      this.balance = ethers.utils.formatUnits(balance, decimalsValue);
+      this.price = ethers.utils.formatUnits(price, 6);
+      this.contractQkiBalance = parseFloat(
+        ethers.utils.formatEther(contractBalance)
+      );
+      this.withdrawPrice = ethers.utils.formatUnits(withdrawPrice, 6);
+
+      if (!balance.isZero()) {
+        this.storeAmount = ethers.utils.formatUnits(user[0], decimalsValue);
+        this.withDrawValue = ethers.utils.formatUnits(user[1], decimalsValue);
+        this.depositUsdtValue = ethers.utils.formatUnits(user[2], 24);
+        this.withdrawtUsdtValue = ethers.utils.formatUnits(user[3], 24);
+        this.next_pool = nextPool;
+      }
+
       await this.getRewardInit();
-      
+      return requestId === this.poolRequestId;
     },
     // 初始化合约
     getContract(address) {
@@ -644,81 +690,6 @@ export default {
         console.log(error);
       }
     },
-    // 获取主网qki的余额
-    async getContractQkiBalance() {
-      let [error, balance] = await this.to(
-        this.provider.getBalance(this.contractAddress)
-      );
-      if (error == null) {
-        let etherString = ethers.utils.formatEther(balance);
-
-        this.contractQkiBalance = parseFloat(etherString);
-      }
-      // return 0.0;
-    },
-    // 得到凭证数量
-    async getBalance() {
-      let [error, balance] = await this.to(
-        this.contract.balanceOf(this.myAddress)
-      );
-      this.doResponse(error, balance, "balance", this.decimals);
-    },
-    // 得到合约的余额
-    async getTotalSupply() {
-      let [error, res] = await this.to(this.contract.totalSupply());
-      this.doResponse(error, res, "totalSupply", this.decimals);
-    },
-    // 获得解锁价格
-    async getWithdrawPrice() {
-      let [error, res] = await this.to(this.contract.withdrawPrice());
-      this.doResponse(error, res, "withdrawPrice", 6);
-    },
-    // 获取下一个可升级的星球池
-    async getNextPoolAddress() {
-      let [error, res] = await this.to(this.contract.next_pool());
-      if (this.doResponse(error, res)) {
-        this.next_pool = res;
-      }
-    },
-    // 获得用户的累计存入数量
-    async geUsers() {
-      let [error, res] = await this.to(this.contract.users(this.myAddress));
-      if (this.doResponse(error, res)) {
-        // 累计存入qki数量
-        let hex = ethers.utils.hexValue(res[0]);
-        let Value =
-          this.hex2int(hex) / ethers.BigNumber.from(10).pow(this.decimals);
-        this.storeAmount = Value;
-        // 累计提现的qki数量
-        let withDrawhex = ethers.utils.hexValue(res[1]);
-        let  withDrawValue =
-          this.hex2int(withDrawhex) / ethers.BigNumber.from(10).pow(this.decimals);
-        // 赚取qki总
-        this.withDrawValue = withDrawValue
-        // 获得累计存入usdt
-        let depositUsdt = ethers.utils.hexValue(res[2]);
-        let depositUsdtValue =
-          this.hex2int(depositUsdt) / ethers.BigNumber.from(10).pow(24);
-        this.depositUsdtValue = depositUsdtValue;
-
-        let withdrawtUsdt = ethers.utils.hexValue(res[3]);
-        let withdrawtUsdtValue =
-          this.hex2int(withdrawtUsdt) / ethers.BigNumber.from(10).pow(24);
-        this.withdrawtUsdtValue = withdrawtUsdtValue;
-      }
-    },
-    // 获得当前价格
-    async getPrice() {
-      let [error, res] = await this.to(this.contract.getPrice());
-      // qusdt的精度为6
-      this.doResponse(error, res, "price", 6);
-    },
-    // 得到精度
-    async getDecimals() {
-      let [error, res] = await this.to(this.contract.decimals());
-      this.doResponse(error, res, "decimals");
-    },
-
     // 切换星球
     async togglePool() {
       if (this.poolLoading) {
